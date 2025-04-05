@@ -8,7 +8,7 @@ interface StatisticsCardProps {
   className?: string;
 }
 
-export default function StatisticsCard({ title, children, compact, className }: StatisticsCardProps) {
+export function StatisticsCard({ title, children, compact, className }: StatisticsCardProps) {
   return (
     <Card className={cn("overflow-hidden", className)}>
       <CardHeader className={cn("pb-2", compact && "py-3")}>

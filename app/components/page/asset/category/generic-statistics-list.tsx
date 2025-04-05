@@ -1,6 +1,6 @@
 import { Badge } from "#/components";
 import { type StatisticsItem } from "#/api";
-import StatisticsCard from "./statistics-card";
+import {StatisticsCard} from "./statistics-card";
 
 export interface GenericStatisticsListProps {
   title: string;

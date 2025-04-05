@@ -593,4 +593,4 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
 );
 
 MultipleSelector.displayName = "MultipleSelector";
-export default MultipleSelector;
+export { MultipleSelector };

@@ -1,47 +1,58 @@
 import { apiClient } from "#/lib";
 import type { PluginData, PluginLog, PluginDeleteItem, PluginSaveData, PluginOperationData } from "./entity";
-import type { ListResponse, CommonMessage } from "#/api";
+import type { ListResponse, CommonMessage, BaseRequest } from "#/api";
 
-export async function getPluginData(data: { search: string; pageIndex: number; pageSize: number }) {
-  return apiClient.post<ListResponse<PluginData>>("/plugin/list", data);
+export async function getPluginData({
+  token,
+  ...data
+}: { search: string; pageIndex: number; pageSize: number } & BaseRequest) {
+  return apiClient.post<ListResponse<PluginData>>("/plugin/list", data, { headers: { Authorization: token } });
 }
 
-export async function getPluginDetail(data: { id: string }) {
-  return apiClient.post<PluginData>("/plugin/detail", data);
+export async function getPluginDetail({ id, token }: { id: string } & BaseRequest) {
+  return apiClient.post<PluginData>("/plugin/detail", { id }, { headers: { Authorization: token } });
 }
 
-export async function savePluginData(data: PluginSaveData) {
-  return apiClient.post<CommonMessage>("/plugin/save", data);
+export async function savePluginData({ token, ...data }: PluginSaveData & BaseRequest) {
+  return apiClient.post<CommonMessage>("/plugin/save", data, { headers: { Authorization: token } });
 }
 
-export async function deletePluginData(data: { data: PluginDeleteItem[] }) {
-  return apiClient.post<CommonMessage>("/plugin/delete", data);
+export async function deletePluginData({ data, token }: { data: PluginDeleteItem[] } & BaseRequest) {
+  return apiClient.post<CommonMessage>("/plugin/delete", { data }, { headers: { Authorization: token } });
 }
 
-export async function checkKey(data: { key: string }) {
-  return apiClient.post<PluginLog>("/plugin/key/check", data);
+export async function checkKey({ key, token }: { key: string } & BaseRequest) {
+  return apiClient.post<PluginLog>("/plugin/key/check", { key }, { headers: { Authorization: token } });
 }
 
-export async function getPluginLog(data: { module: string; hash: string }) {
-  return apiClient.post<PluginLog>("/plugin/log", data);
+export async function getPluginLog({ module, hash, token }: { module: string; hash: string } & BaseRequest) {
+  return apiClient.post<PluginLog>("/plugin/log", { module, hash }, { headers: { Authorization: token } });
 }
 
-export async function cleanPluginLog(data: { module: string; hash: string }) {
-  return apiClient.post<PluginLog>("/plugin/log/clean", data);
+export async function cleanPluginLog({ module, hash, token }: { module: string; hash: string } & BaseRequest) {
+  return apiClient.post<PluginLog>("/plugin/log/clean", { module, hash }, { headers: { Authorization: token } });
 }
 
-export async function getPluginDataByModule(data: { module: string }) {
-  return apiClient.post<ListResponse<PluginData>>("/plugin/list/bymodule", data);
+export async function getPluginDataByModule({ module, token }: { module: string } & BaseRequest) {
+  return apiClient.post<ListResponse<PluginData>>(
+    "/plugin/list/bymodule",
+    { module },
+    { headers: { Authorization: token } }
+  );
 }
 
-export async function reInstallPlugin(data: PluginOperationData) {
-  return apiClient.post<ListResponse<PluginData>>("/plugin/reinstall", data);
+// export async function getPluginDataByModules({ modules, token }: { modules: string[] } & BaseRequest) {
+//   return modules.map(async (module) => await getPluginDataByModule({ module, token }));
+// }
+
+export async function reInstallPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
+  return apiClient.post<ListResponse<PluginData>>("/plugin/reinstall", data, { headers: { Authorization: token } });
 }
 
-export async function reCheckPlugin(data: PluginOperationData) {
-  return apiClient.post<ListResponse<PluginData>>("/plugin/recheck", data);
+export async function reCheckPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
+  return apiClient.post<ListResponse<PluginData>>("/plugin/recheck", data, { headers: { Authorization: token } });
 }
 
-export async function uninstallPlugin(data: PluginOperationData) {
-  return apiClient.post<ListResponse<PluginData>>("/plugin/uninstall", data);
+export async function uninstallPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
+  return apiClient.post<ListResponse<PluginData>>("/plugin/uninstall", data, { headers: { Authorization: token } });
 }

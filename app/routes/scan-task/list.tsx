@@ -5,7 +5,8 @@ import {
   type LoaderFunctionArgs,
   type ActionFunctionArgs,
   useSubmit,
-  redirect
+  redirect,
+  Form
 } from "react-router";
 import { deleteTask, getTaskData, retestTask, startTask, stopTask, type TaskData, type TaskDetail } from "#/api";
 import {
@@ -50,14 +51,16 @@ import {
   SCAN_TASK_REPORT_ROUTE,
   SCAN_TASK_ROUTE
 } from "#/routes";
-import { getToken, r } from "#/lib";
+import { getSearchParams, getToken, r } from "#/lib";
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const token = await getToken(request);
 
-  const search = params.search || "";
-  const pageIndex = parseInt(params.pageIndex || "1");
-  const pageSize = parseInt(params.pageSize || "10");
+  const { search, pageIndex, pageSize } = getSearchParams(request, {
+    search: "",
+    pageIndex: 1,
+    pageSize: 10
+  });
 
   const { list, total } = await getTaskData({
     search,
@@ -336,7 +339,6 @@ function TaskCard({
   );
 }
 
-
 export default function ScanTasksPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -365,27 +367,25 @@ export default function ScanTasksPage() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 border-b pb-2">
             {/* Search */}
-
             <div className="relative w-full sm:w-auto max-w-[250px] flex items-center justify-center gap-2">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                name="search"
-                placeholder="搜索任务..."
-                className="pl-8"
-                defaultValue={searchParams.get("search") || ""}
-              />
-              <Button
-                onClick={() =>
-                  setSearchParams(prev => {
-                    prev.set("search", "test");
-                    return prev;
-                  })
-                }
-                size="sm"
-              >
-                搜索
-              </Button>
+              <Form role="search" method="get">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  name="search"
+                  placeholder="搜索任务..."
+                  className="pl-8"
+                  onChange={e => {
+                    if (e.target.value === "") {
+                      setSearchParams(prev => {
+                        prev.delete("search");
+                        return prev;
+                      });
+                    }
+                  }}
+                  defaultValue={searchParams.get("search") || ""}
+                />
+              </Form>
             </div>
 
             {/* Filter */}
@@ -493,7 +493,8 @@ export default function ScanTasksPage() {
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sticky bottom-0 bg-background py-3 border-t">
             <div className="text-sm text-muted-foreground">
-              显示 {tasks.length > 0 ? (pageIndex - 1) * pageSize + 1 : 0}-{(pageIndex - 1) * pageSize + tasks.length} 共 {total} 条记录
+              显示 {tasks.length > 0 ? (pageIndex - 1) * pageSize + 1 : 0}-{(pageIndex - 1) * pageSize + tasks.length}{" "}
+              共 {total} 条记录
             </div>
           </div>
         </CardContent>

@@ -1,13 +1,13 @@
 import { Badge } from "#/components";
 import { type IconStatisticsItem } from "#/api";
-import StatisticsCard from "./statistics-card";
+import {StatisticsCard} from "./statistics-card";
 
 interface ServiceIconGridProps {
   data: IconStatisticsItem[];
   compact?: boolean;
   className?: string;
-  selectTag: (type: string, value: string | number) => void;
-  removeTag: (type: string, value: string | number) => void;
+  selectTag?: (type: string, value: string | number) => void;
+  removeTag?: (type: string, value: string | number) => void;
 }
 
 export function ServiceIconGrid({ data, compact, className, selectTag, removeTag }: ServiceIconGridProps) {
@@ -18,7 +18,7 @@ export function ServiceIconGrid({ data, compact, className, selectTag, removeTag
           <div
             key={icon_hash}
             className="flex flex-col items-center justify-center py-2 hover:bg-muted/50 transition-colors px-2 rounded-sm cursor-pointer"
-            onClick={() => selectTag("icon", icon_hash)}
+            onClick={() => selectTag && selectTag("icon", icon_hash)}
           >
             <div className={compact ? "w-6 h-6" : "w-10 h-10"}>
               <img 

@@ -139,8 +139,8 @@ function RecentTasks({ recentTasks }: { recentTasks: any }) {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-md font-medium">最近任务</CardTitle>
         <Link to={SCAN_TASKS_ROUTE}>
-          <Button variant="secondary" size="sm">
-            查看全部
+          <Button size="sm">
+            全部任务
           </Button>
         </Link>
       </CardHeader>
@@ -199,7 +199,6 @@ function VersionInfo({ versionData }: { versionData: { list: VersionData[] } }) 
     </Card>
   );
 }
-
 function NodeStatusCard({ nodeData }: { nodeData: { list: NodeData[] } }) {
   const nodeMetrics = [
     {
@@ -213,18 +212,6 @@ function NodeStatusCard({ nodeData }: { nodeData: { list: NodeData[] } }) {
       color: "text-blue-500",
       label: "已完成",
       value: (node: NodeData) => node.finished
-    },
-    {
-      icon: Cpu,
-      color: "text-yellow-500",
-      label: "CPU",
-      value: (node: NodeData) => `${node.cpuNum}%`
-    },
-    {
-      icon: MemoryStick,
-      color: "text-purple-500",
-      label: "内存",
-      value: (node: NodeData) => `${Number(node.memNum).toFixed(2)}G`
     }
   ];
 
@@ -243,18 +230,51 @@ function NodeStatusCard({ nodeData }: { nodeData: { list: NodeData[] } }) {
                   <p className="text-sm font-medium">{node.name}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2 mb-3">
                 {nodeMetrics.map((metric, idx) => {
                   const Icon = metric.icon;
+                  const value = metric.value(node);
                   return (
                     <div key={idx} className="flex items-center">
                       <Icon className={`w-3 h-3 mr-1 ${metric.color}`} />
                       <p className="text-xs">
-                        {metric.label}: {metric.value(node)}
+                        {metric.label}: {value}
                       </p>
                     </div>
                   );
                 })}
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center">
+                      <Cpu className="w-4 h-4 mr-2 text-yellow-500" />
+                      <span className="text-sm">CPU 使用率</span>
+                    </div>
+                    <span className="text-sm font-medium">{Number(node.cpuNum).toFixed(2)}%</span>
+                  </div>
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-yellow-500 rounded-full transition-all duration-300"
+                      style={{ width: `${Number(node.cpuNum)}%` }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center">
+                      <MemoryStick className="w-4 h-4 mr-2 text-purple-500" />
+                      <span className="text-sm">内存使用率</span>
+                    </div>
+                    <span className="text-sm font-medium">{Number(node.memNum).toFixed(2)}%</span>
+                  </div>
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-purple-500 rounded-full transition-all duration-300"
+                      style={{ width: `${Number(node.memNum)}%` }}
+                    />
+                  </div>
+                </div>
               </div>
               <p className="text-xs text-muted-foreground mt-1">更新时间: {node.updateTime}</p>
             </div>

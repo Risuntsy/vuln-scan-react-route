@@ -7,7 +7,8 @@ import type {
   TaskDetail,
   TaskProgessInfo,
   ScheduledTaskData,
-  TemplateDetail
+  TemplateDetail,
+  TaskTemplateData
 } from "./entity";
 
 type BaseRequest = {
@@ -15,9 +16,9 @@ type BaseRequest = {
 };
 
 export async function getTaskData({
-  search = "",
-  pageIndex = 1,
-  pageSize = 10,
+  search,
+  pageIndex,
+  pageSize,
   token
 }: BaseRequest & {
   search?: string;
@@ -155,7 +156,7 @@ export async function getTemplateData({
   pageIndex?: number;
   pageSize?: number;
 }) {
-  return apiClient.post<ListResponse<TaskData>>(
+  return apiClient.post<ListResponse<TaskTemplateData>>(
     "/task/template/list",
     { search, pageIndex, pageSize },
     { headers: { Authorization: token } }
@@ -166,12 +167,8 @@ export async function getTemplateDetail({ id, token }: BaseRequest & { id: strin
   return apiClient.post<TemplateDetail>("/task/template/detail", { id }, { headers: { Authorization: token } });
 }
 
-export async function saveTemplateDetail({
-  result,
-  id,
-  token
-}: BaseRequest & { result: Record<string, any>; id: string }) {
-  return apiClient.post<TemplateDetail>("/task/template/save", { result, id }, { headers: { Authorization: token } });
+export async function saveTemplateDetail({ token, ...data }: BaseRequest & { result: TemplateDetail; id?: string }) {
+  return apiClient.post<TemplateDetail>("/task/template/save", data, { headers: { Authorization: token } });
 }
 
 export async function deleteTemplateDetail({ ids, token }: BaseRequest & { ids: string[] }) {

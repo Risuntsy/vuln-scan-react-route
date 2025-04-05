@@ -154,7 +154,7 @@ body {
 
   html,
   body {
-    @apply min-h-screen w-full;
+    @apply min-h-screen max-w-screen;
   }
 
   button {

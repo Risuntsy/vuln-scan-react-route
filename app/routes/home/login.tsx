@@ -4,7 +4,7 @@ import { Label } from "#/components";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components";
 import { AlertCircle, Lock, User } from "lucide-react";
 import { z } from "zod";
-import { redirect, useActionData, type LoaderFunctionArgs, type ActionFunctionArgs } from "react-router";
+import { redirect, useActionData } from "react-router";
 import { Alert, AlertDescription } from "#/components";
 import { login } from "#/api";
 import { tokenCookie, getToken } from "#/lib";
@@ -17,7 +17,7 @@ const loginSchema = z.object({
   redirect: z.string().optional()
 });
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const token = await getToken(request, false);
   if (token) {
     return redirect(DASHBOARD_ROUTE);
@@ -25,9 +25,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return null;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const { success, data, error } = loginSchema.safeParse(Object.fromEntries(await request.formData()));
-  
+
   if (!success) {
     return { success: false, message: error.message };
   }
@@ -40,10 +40,8 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 }
 
-export default async function LoginPage({ params }: Route.ComponentProps) {
+export default function LoginPage() {
   const { success, message } = useActionData<typeof action>() || {};
-
-  const redirect = params.redirect;
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">
@@ -61,9 +59,6 @@ export default async function LoginPage({ params }: Route.ComponentProps) {
           )}
           <form method="post">
             <div className="space-y-4">
-              <div className="hidden">
-                <input type="hidden" name="redirect" value={redirect} />
-              </div>
               <div className="space-y-2">
                 <Label htmlFor="username">用户名</Label>
                 <div className="relative">

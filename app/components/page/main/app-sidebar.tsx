@@ -2,9 +2,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenuButton,
   SidebarMenuSubItem,
@@ -15,12 +12,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "#/components";
 import { LOGOUT_ROUTE, type SideBarItem } from "#/routes";
 import { User, Settings, LogOut, Bell, ChevronsUpDown } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "#/lib/utils";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "#/components/ui/accordion";
 
 // 用户菜单配置
 const userMenuItems: ({ icon?: React.ElementType; label?: string; href?: string; variant?: "danger" } & {
@@ -56,14 +54,79 @@ const userProfile = {
   email: "admin@example.com"
 };
 
-export default function AppSidebar({ items }: { items: SideBarItem[] }) {
+// Helper function to check if any sub-item is active
+function hasActiveSubItem(items: SideBarItem[], pathname: string): boolean {
+  return items.some(
+    item => (item.href && pathname.startsWith(item.href)) || (item.subMenu && hasActiveSubItem(item.subMenu, pathname))
+  );
+}
+
+function SidebarList({ items, isSubmenu = false }: { items: SideBarItem[]; isSubmenu?: boolean }) {
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  const defaultOpenValues = items
+    .filter(item => item.subMenu?.length && hasActiveSubItem(item.subMenu, pathname))
+    .map(item => item.name);
+
   return (
-    <Sidebar variant="floating">
-      <SidebarHeader />
-      <SidebarContent className="px-2">
+    <Accordion
+      type="multiple"
+      className={cn("w-full space-y-1", isSubmenu && "ml-1 pl-1 border-l ")}
+      defaultValue={defaultOpenValues}
+    >
+      {items.map(({ name, href, Icon, subMenu }) => {
+        if (subMenu?.length) {
+          const hasActiveChild = hasActiveSubItem(subMenu, pathname);
+
+          return (
+            <AccordionItem key={name} value={name} className="border-b-0">
+              <AccordionTrigger
+                className={cn(
+                  "flex items-center justify-between py-2 px-3 text-sm font-medium rounded-md hover:no-underline",
+                  "hover:bg-muted",
+                  hasActiveChild ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Icon className="h-4 w-4" />
+                  <span>{name}</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-0 pl-2">
+                <SidebarList items={subMenu} isSubmenu />
+              </AccordionContent>
+            </AccordionItem>
+          );
+        }
+
+        if (!href) return null;
+        const isActive = !!href && (pathname === href || pathname.startsWith(href));
+
+        return (
+          <SidebarMenuSubItem key={name} className="list-none">
+            <SidebarMenuButton asChild isActive={isActive} className="h-auto py-2 px-0 justify-start">
+              <SidebarNavLink href={href} icon={Icon} name={name} isActive={isActive} />
+            </SidebarMenuButton>
+          </SidebarMenuSubItem>
+        );
+      })}
+    </Accordion>
+  );
+}
+
+export function AppSidebar({ items }: { items: SideBarItem[] }) {
+  return (
+    <Sidebar variant="floating" className="border-r shadow-sm">
+      <SidebarHeader className="p-4 flex items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-lg font-semibold">漏洞扫描系统</span>
+        </div>
+      </SidebarHeader>
+      <SidebarContent className="px-3 py-2">
         <SidebarList items={items} />
       </SidebarContent>
-      <SidebarFooter className="border-t p-4">
+      <SidebarFooter className="border-t p-4 mt-auto">
         <UserProfile profile={userProfile} menuItems={userMenuItems} />
       </SidebarFooter>
     </Sidebar>
@@ -74,18 +137,18 @@ function UserProfile({ profile, menuItems }: { profile: typeof userProfile; menu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-muted/50 rounded-md p-1">
+        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-muted/50 rounded-md p-2 transition-colors">
           <div className="flex items-center gap-3">
-            <Avatar>
+            <Avatar className="border-2 border-primary/10">
               <AvatarImage src={profile.avatar} alt={`${profile.name}的头像`} />
-              <AvatarFallback>{profile.name}</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary">{profile.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <span className="text-sm font-medium">{profile.name}</span>
-              <span className="text-xs text-muted-foreground">{profile.email}</span>
+              <span className="text-xs text-muted-foreground truncate max-w-[120px]">{profile.email}</span>
             </div>
           </div>
-          <ChevronsUpDown className="h-4 w-4" />
+          <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -102,7 +165,7 @@ function UserProfile({ profile, menuItems }: { profile: typeof userProfile; menu
             <DropdownMenuItem
               key={index}
               className={cn("cursor-pointer", {
-                "text-red-500": item.variant === "danger"
+                "text-destructive hover:text-destructive/90 hover:bg-destructive/10": item.variant === "danger"
               })}
             >
               <item.icon className="mr-2 h-4 w-4" />
@@ -134,59 +197,18 @@ function SidebarNavLink({
   name: string;
   isActive: boolean;
 }) {
-  const content = (
-    <span className="flex items-center gap-2 text-sm">
-      <Icon className="h-4 w-4" />
-      <span>{name}</span>
-    </span>
-  );
-
-  return isActive ? (
-    content
-  ) : (
+  return (
     <Link
       to={href}
-      className={cn("flex items-center gap-2 text-sm", {
-        "text-muted-foreground": isActive
-      })}
+      className={cn(
+        "flex items-center gap-2 text-sm py-2 px-3 rounded-md transition-colors",
+        isActive
+          ? "bg-primary/10 text-primary font-medium"
+          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+      )}
     >
-      {content}
+      <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
+      <span>{name}</span>
     </Link>
-  );
-}
-
-function SidebarList({ items, isSubmenu = false }: { items: SideBarItem[]; isSubmenu?: boolean }) {
-  const location = useLocation();
-  const pathname = location.pathname;
-
-  return (
-    <>
-      {items.map(({ name, href, Icon, subMenu }) => {
-        const isActive = !!href && pathname.endsWith(href);
-
-        if (subMenu?.length) {
-          return (
-            <SidebarGroup key={name}>
-              <SidebarGroupLabel asChild>
-                <span>{name}</span>
-              </SidebarGroupLabel>
-              <SidebarGroupContent className="border-l border-muted mt-1 px-2">
-                <SidebarList items={subMenu} isSubmenu />
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        }
-
-        if (!href) return null;
-
-        return (
-          <SidebarMenuSubItem key={name} className="list-none">
-            <SidebarMenuButton asChild isActive={isActive}>
-              <SidebarNavLink href={href} icon={Icon} name={name} isActive={isActive} />
-            </SidebarMenuButton>
-          </SidebarMenuSubItem>
-        );
-      })}
-    </>
   );
 }

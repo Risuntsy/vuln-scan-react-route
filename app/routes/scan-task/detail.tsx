@@ -1,12 +1,35 @@
-import { Link, redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
-import { Globe, Network, Calendar, Clock, FileText } from "lucide-react";
+import {
+  Link,
+  redirect,
+  useLoaderData,
+  type LoaderFunctionArgs,
+  useSearchParams,
+  type SetURLSearchParams
+} from "react-router";
+import { Globe, Network, Calendar, Clock, FileText, ChevronLeft, ChevronRight, Delete, Recycle } from "lucide-react";
 
-import { getToken, r } from "#/lib";
-import { getAssetStatistics, getTaskDetail, type TaskDetail } from "#/api";
-import { Card, CardContent, CardHeader, CardTitle, ScrollArea, Badge, Button, ScanTaskHeader } from "#/components";
+import { getToken, r, getSearchParams } from "#/lib";
+import { getAssetStatistics, getTaskDetail, getTaskProgress, type TaskDetail, type TaskProgessInfo } from "#/api";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  ScrollArea,
+  Badge,
+  Button,
+  ScanTaskHeader,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "#/components";
 import { SCAN_TASK_ASSETS_ROUTE } from "#/routes";
 
 import { PortServiceList, ServiceTypeList, StatisticsList, ServiceIconGrid } from "#/components";
+import { CustomPagination } from "#/components";
 
 const overviewItems = [
   {
@@ -39,6 +62,29 @@ const overviewItems = [
   }
 ] as const;
 
+const progressItems: { key: keyof TaskProgessInfo; label: string }[] = [
+  { key: "TargetHandler", label: "目标处理" },
+  { key: "SubdomainScan", label: "子域名扫描" },
+  { key: "SubdomainSecurity", label: "子域名安全" },
+  { key: "PortScanPreparation", label: "端口扫描准备" },
+  { key: "PortScan", label: "端口扫描" },
+  { key: "PortFingerprint", label: "端口指纹" },
+  { key: "AssetMapping", label: "资产映射" },
+  { key: "AssetHandle", label: "资产处理" },
+  { key: "URLScan", label: "URL扫描" },
+  { key: "WebCrawler", label: "Web爬虫" },
+  { key: "URLSecurity", label: "URL安全" },
+  { key: "DirScan", label: "目录扫描" },
+  { key: "VulnerabilityScan", label: "漏洞扫描" }
+] as const;
+
+function getProgressStatus(times: string[]) {
+  times = times.filter(time => time != "");
+  if (times.length === 0) return "未开始";
+  if (times.length === 2) return "已完成";
+  return "进行中";
+}
+
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const taskId = params.taskId;
   if (!taskId) {
@@ -46,17 +92,24 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   }
 
   const token = await getToken(request);
+  const { pageIndex, pageSize } = getSearchParams(request, { pageIndex: 1, pageSize: 20 });
 
   try {
-    const [taskDetail, assetStatistics] = await Promise.all([
+    const [taskDetail, assetStatistics, taskProgress] = await Promise.all([
       getTaskDetail({ id: taskId, token }),
       getAssetStatistics({
         search: "",
-        pageIndex: 1,
-        pageSize: 20,
+        pageIndex,
+        pageSize,
         filter: {
           taskId
         },
+        token
+      }),
+      getTaskProgress({
+        id: taskId,
+        pageIndex,
+        pageSize,
         token
       })
     ]);
@@ -66,28 +119,48 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       });
     }
 
-    return { success: true, taskId, taskDetail, assetStatistics };
+    return {
+      success: true,
+      taskId,
+      taskDetail,
+      assetStatistics,
+      taskProgressList: {
+        list: taskProgress.list.sort((a, b) => a.target.localeCompare(b.target)),
+        total: taskProgress.total
+      }
+    };
   } catch (error: any) {
     return { success: false, error: error.message || "未知错误" };
   }
 }
 
 export default function TaskOverviewPage() {
-  const { taskId, taskDetail, assetStatistics, success, error } = useLoaderData<typeof loader>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageIndex = Number(searchParams.get("pageIndex")) || 1;
+  const pageSize = Number(searchParams.get("pageSize")) || 20;
+
+  const {
+    taskId,
+    taskDetail,
+    assetStatistics,
+    taskProgressList: { list: taskProgress, total: totalTaskProgress } = {},
+    success,
+    error
+  } = useLoaderData<typeof loader>();
 
   if (!success || !taskDetail || !assetStatistics || !taskId) {
     return <div className="p-4 space-y-4">{error}</div>;
   }
 
   return (
-    <>
+    <div>
       <ScanTaskHeader taskId={taskId} taskDetail={taskDetail} routes={[{ name: "任务概览" }]}>
-        <Link to={r(SCAN_TASK_ASSETS_ROUTE, { variables: { taskId } })}>
+        <Link to={r(SCAN_TASK_ASSETS_ROUTE, { variables: { taskId } })}>s
           <Button variant="default">所有资产</Button>
         </Link>
       </ScanTaskHeader>
 
-      <div className="p-4 space-y-4">
+      <div className="p-2 space-y-2">
         <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
           {overviewItems.map(({ title, icon: Icon, description, format }) => (
             <Card key={title}>
@@ -106,22 +179,68 @@ export default function TaskOverviewPage() {
         </div>
 
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-3 sticky top-0 bg-background z-10">
             <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              扫描目标
+              <div className="flex items-center gap-2 justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <span>扫描进度</span>
+                </div>
+                <CustomPagination
+                  total={totalTaskProgress || 0}
+                  pageIndex={pageIndex}
+                  pageSize={pageSize}
+                  setSearchParams={setSearchParams}
+                />
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[160px] w-full rounded-md border p-3 bg-muted/30">
-              <div className="flex flex-wrap gap-2">
-                {taskDetail.target.split("\n").map((target: string, index: number) => (
-                  <Badge key={index} variant="secondary" className="px-2 py-0.5 text-sm font-mono">
-                    {target.trim()}
-                  </Badge>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>扫描目标</TableHead>
+                  <TableHead>节点</TableHead>
+                  {progressItems.map(({ label }) => (
+                    <TableHead key={label}>{label}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {taskProgress?.map((progress: TaskProgessInfo, index: number) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-mono">{progress.target}</TableCell>
+                    <TableCell>{progress.node}</TableCell>
+                    {progressItems.map(({ key }) => {
+                      const times = progress[key] as string[];
+                      const status = getProgressStatus(times);
+                      const statusConfig = {
+                        completed: {
+                          variant: "default" as const,
+                          className: "bg-green-600 text-white dark:bg-green-700 dark:text-green-100"
+                        },
+                        running: {
+                          variant: "secondary" as const,
+                          className: "bg-blue-600 text-white dark:bg-blue-700 dark:text-blue-100"
+                        },
+                        default: {
+                          variant: "outline" as const,
+                          className: "bg-gray-600 text-white dark:bg-gray-700 dark:text-gray-100"
+                        }
+                      }[status === "已完成" ? "completed" : status === "进行中" ? "running" : "default"];
+
+                      return (
+                        <TableCell key={key}>
+                          <Badge variant={statusConfig.variant} className={statusConfig.className}>
+                            {status}
+                          </Badge>
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
                 ))}
-              </div>
-            </ScrollArea>
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 
@@ -133,6 +252,6 @@ export default function TaskOverviewPage() {
 
         <ServiceIconGrid data={assetStatistics.Icon} />
       </div>
-    </>
+    </div>
   );
 }

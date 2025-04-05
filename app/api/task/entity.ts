@@ -1,5 +1,5 @@
 export interface TemplateDetail {
-  id: string;
+  id?: string;
   name: string;
   TargetHandler: string[];
   Parameters: {
@@ -39,18 +39,29 @@ export interface ScheduledTaskData {
   lastTime: string;
   nextTime: string;
   state: string;
+  cycle?: number;
+  node?: string[];
+  allNode?: boolean;
+  runner_id?: string;
 }
 
 export interface TaskProgessInfo {
-  subdomain: string[];
-  subdomainTakeover: string[];
-  portScan: string[];
-  assetMapping: string[];
-  urlScan: string[];
-  crawler: string[];
-  dirScan: string[];
-  vulnerability: string[];
-  all: string[];
+  TargetHandler: string[];
+  SubdomainScan: string[];
+  SubdomainSecurity: string[];
+  PortScanPreparation: string[];
+  PortScan: string[];
+  PortFingerprint: string[];
+  AssetMapping: string[];
+  AssetHandle: string[];
+  URLScan: string[];
+  WebCrawler: string[];
+  URLSecurity: string[];
+  DirScan: string[];
+  VulnerabilityScan: string[];
+  All: string[];
+  target: string;
+  node: string;
 }
 
 export interface TaskDetail {
@@ -63,9 +74,11 @@ export interface TaskDetail {
   hour: number;
   duplicates: string;
   template: string;
+  state: boolean;
 }
 
 export interface UpdateScheduleRequest {
+  state: boolean;
   id: string;
   name: string;
   target: string;
@@ -104,4 +117,9 @@ export interface TaskData {
   progress: string;
   creatTime: string;
   endTime: string;
+}
+
+export interface TaskTemplateData {
+  id: string;
+  name: string;
 }

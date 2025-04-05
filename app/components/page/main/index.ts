@@ -1,4 +1,2 @@
-import Header from "./header";
-import AppSidebar from "./app-sidebar";
-
-export { Header, AppSidebar };
+export * from "./header";
+export * from "./app-sidebar";

@@ -15,7 +15,6 @@ import {
   SelectValue
 } from "#/components";
 import { SelectLabel } from "@radix-ui/react-select";
-import { useMemo, useState } from "react";
 
 export const CustomFormSection = ({ children, ...props }: { children: React.ReactNode; props?: any }) => (
   <div className={`space-y-2 mt-4 ${props}`}>{children}</div>
@@ -82,19 +81,19 @@ export const CustomWarningAlert = ({ icon, children }: { icon: string; children:
 );
 
 export const CustomSwitchOption = ({
-  id,
+  name,
   label,
   checked,
   onChange
 }: {
-  id: string;
+  name?: string;
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) => (
   <div className="flex items-center space-x-2">
-    <Switch id={id} checked={checked} onCheckedChange={onChange} />
-    <Label htmlFor={id} className="cursor-pointer">
+    <Switch name={name} checked={checked} onCheckedChange={onChange} />
+    <Label htmlFor={name} className="cursor-pointer">
       {label}
     </Label>
   </div>

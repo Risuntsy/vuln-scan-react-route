@@ -1,12 +1,11 @@
 import { type RouteConfig, layout, route } from "@react-router/dev/routes";
-import { LayoutDashboard, FolderKanban } from "lucide-react";
+import { LayoutDashboard, FolderKanban, ClipboardList, Scan, CalendarClock, File, ScanSearch } from "lucide-react";
 
 export const HOME_ROUTE = "/";
 export const DASHBOARD_ROUTE = "/dashboard";
 export const LOGIN_ROUTE = "/login";
 export const LOGOUT_ROUTE = "/logout";
 export const ABOUT_ROUTE = "/about";
-// export const ASSETS_ROUTE = "/assets";
 export const ASSET_ROUTE = "/asset/:assetId";
 export const ASSET_SENSITIVE_INFORMATION_ROUTE = ASSET_ROUTE + "/sensitive-information";
 export const ASSET_PORT_SERVICE_ROUTE = ASSET_ROUTE + "/port-service";
@@ -17,16 +16,22 @@ export const SCAN_TASK_REPORT_ROUTE = SCAN_TASK_ROUTE + "/report";
 export const SCAN_TASK_EDIT_ROUTE = SCAN_TASK_ROUTE + "/edit";
 export const SCAN_TASK_STATISTICS_ROUTE = SCAN_TASK_ROUTE + "/statistics";
 export const SCAN_TASK_ASSETS_ROUTE = SCAN_TASK_ROUTE + "/assets";
+export const SCHEDULED_TASKS_ROUTE = "/scheduled-tasks";
+export const SCHEDULED_TASK_ROUTE = "/scheduled-task/:taskId";
+export const SCHEDULED_TASK_EDIT_ROUTE = SCHEDULED_TASK_ROUTE + "/edit";
+export const TEMPLATES_ROUTE = "/templates";
 
 const mainRoutes = [
   route(DASHBOARD_ROUTE, "routes/home/dashboard.tsx"),
   route(SCAN_TASKS_ROUTE, "routes/scan-task/list.tsx"),
   route(SCAN_TASK_ROUTE, "routes/scan-task/detail.tsx"),
-  route(SCAN_TASK_EDIT_ROUTE, "routes/scan-task/edit.tsx"),
-  route(SCAN_TASK_CREATE_ROUTE, "routes/scan-task/create.tsx"),
+  route(SCAN_TASK_CREATE_ROUTE, "routes/scan-task/create-and-edit.tsx", { id: "create-scan-task" }),
+  route(SCAN_TASK_EDIT_ROUTE, "routes/scan-task/create-and-edit.tsx", { id: "edit-scan-task" }),
   route(SCAN_TASK_ASSETS_ROUTE, "routes/scan-task/asset/list.tsx"),
-  route(SCAN_TASK_STATISTICS_ROUTE, "routes/scan-task/statistics.tsx"),
-  route(ASSET_ROUTE, "routes/scan-task/asset/detail.tsx")
+  route(ASSET_ROUTE, "routes/scan-task/asset/detail.tsx"),
+  route(SCHEDULED_TASKS_ROUTE, "routes/scheduled-task/list.tsx"),
+  route(SCHEDULED_TASK_EDIT_ROUTE, "routes/scheduled-task/create-and-edit.tsx", { id: "edit-scheduled-task" }),
+  route(TEMPLATES_ROUTE, "routes/scan-task/template.tsx")
 ];
 
 const navLayoutRoutes = layout("layouts/nav-layout.tsx", mainRoutes);
@@ -54,11 +59,11 @@ export const menuItems: SideBarItem[] = [
   { name: "概览", href: DASHBOARD_ROUTE, Icon: LayoutDashboard },
   {
     name: "任务管理",
-    Icon: FolderKanban,
+    Icon: ClipboardList,
     subMenu: [
-      { name: "扫描任务", href: SCAN_TASKS_ROUTE, Icon: FolderKanban }
-      // { name: "计划任务", href: SCHEDULED_TASKS_ROUTE, Icon: FolderKanban },
-      // { name: "扫描模板", href: TEMPLATES_ROUTE, Icon: FolderKanban }
+      { name: "扫描任务", href: SCAN_TASKS_ROUTE, Icon: ScanSearch },
+      { name: "计划任务", href: SCHEDULED_TASKS_ROUTE, Icon: CalendarClock },
+      { name: "扫描模板", href: TEMPLATES_ROUTE, Icon: File }
     ]
   }
   // { name: "插件管理", href: PLUGINS_ROUTE, Icon: Plug },

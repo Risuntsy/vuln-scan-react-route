@@ -6,12 +6,12 @@ import {
   useSubmit,
   useFetcher,
   redirect,
-  useNavigate
+  useNavigate,
+  useLocation
 } from "react-router";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { AlertCircle, ArrowLeft, Play } from "lucide-react";
-import { Link } from "react-router";
 
 import { getToken, r } from "#/lib";
 import { getNodeDataOnline, getTemplateData, addTask } from "#/api";
@@ -34,7 +34,7 @@ import {
   Alert,
   AlertDescription
 } from "#/components";
-import { MultipleSelector } from "#/components/epansions";
+import { MultipleSelector } from "#/components";
 
 const formSchema = z.object({
   name: z.string().min(1, "任务名称不能为空"),
@@ -94,6 +94,8 @@ export async function action({ request }: ActionFunctionArgs) {
   return redirect(SCAN_TASKS_ROUTE);
 }
 export default function CreateScanTaskPage() {
+  const isCreateTask = useLocation().pathname.endsWith("create");
+
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const { success, message } = useActionData<typeof action>() || {};
@@ -213,13 +215,11 @@ example.com`}
 
               <CustomFormSection>
                 <CustomSwitchOption
-                  id="allNode"
                   label="自动加入节点"
                   checked={form.watch("allNode")}
                   onChange={checked => form.setValue("allNode", checked)}
                 />
                 <CustomSwitchOption
-                  id="scheduledTasks"
                   label="定时任务"
                   checked={form.watch("scheduledTasks")}
                   onChange={checked => form.setValue("scheduledTasks", checked)}

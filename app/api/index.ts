@@ -10,3 +10,4 @@ export * from "./node";
 export * from "./vul";
 export * from "./export";
 export * from "./poc";
+export * from "./plugin";

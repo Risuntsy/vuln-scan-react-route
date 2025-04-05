@@ -11,6 +11,7 @@ import {
   Button,
   Card,
   CardContent,
+  CustomPagination,
   Input,
   PortServiceList,
   ScrollArea,
@@ -150,10 +151,10 @@ export default function ScanTaskAssetPage() {
             search={search}
             setSearch={setSearch}
             pageIndex={pageIndex}
+            pageSize={pageSize}
             setSearchParams={setSearchParams}
             hasNextPage={list.length >= pageSize}
             selectedTags={JSON.parse(searchParams.get("tags") || "{}")}
-            totalPage={Math.ceil(total / pageSize)}
             total={total}
             removeTag={removeTag}
           />
@@ -215,7 +216,7 @@ function FilterBar({
   search,
   setSearch,
   pageIndex,
-  totalPage,
+  pageSize,
   setSearchParams,
   hasNextPage,
   selectedTags,
@@ -225,16 +226,15 @@ function FilterBar({
   search: string;
   setSearch: (value: string) => void;
   pageIndex: number;
-  totalPage: number;
+  pageSize: number;
   setSearchParams: SetURLSearchParams;
   hasNextPage: boolean;
   selectedTags: { [key: string]: string[] };
   total: number;
   removeTag: (type: string, value: string) => void;
 }) {
-  const [isPageInputOpen, setIsPageInputOpen] = useState(false);
-  const [pageInput, setPageInput] = useState(pageIndex.toString());
-
+  const totalPage = Math.ceil(total / pageSize);
+  
   return (
     <div className="space-y-2 sticky top-0 bg-background p-2 z-10">
       <div className="flex flex-row gap-2">
@@ -276,66 +276,15 @@ function FilterBar({
             <RotateCcw className="h-4 w-4" />
           </Button>
         </div>
-        <div className="flex items-center gap-2">
-          {isPageInputOpen ? (
-            <>
-              <Input
-                type="number"
-                value={pageInput}
-                onChange={e => setPageInput(e.target.value)}
-                className="w-20"
-                min={1}
-                max={totalPage}
-              />
-              <Button
-                size="sm"
-                onClick={() => {
-                  setSearchParams(prev => {
-                    prev.set("pageIndex", pageInput);
-                    return prev;
-                  });
-                  setIsPageInputOpen(false);
-                }}
-              >
-                确定
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" size="sm" className="w-16" onClick={() => setIsPageInputOpen(true)}>
-                第 {pageIndex} 页
-              </Button>
-            </>
-          )}
-        </div>
-        <div className="flex gap-2 justify-center items-center">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={pageIndex <= 1}
-            onClick={() =>
-              setSearchParams(prev => {
-                prev.set("pageIndex", (pageIndex - 1).toString());
-                return prev;
-              })
-            }
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!hasNextPage}
-            onClick={() =>
-              setSearchParams(prev => {
-                prev.set("pageIndex", (pageIndex + 1).toString());
-                return prev;
-              })
-            }
-          >
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-          <span>共 {total} 条结果</span>
+        
+        <div className="flex items-center">
+          <CustomPagination
+            total={total}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            setSearchParams={setSearchParams}
+          />
+          <span className="ml-2">共 {total} 条结果</span>
         </div>
       </div>
       {Object.keys(selectedTags).length > 0 && (

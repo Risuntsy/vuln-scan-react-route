@@ -9,7 +9,7 @@ import {
 import { SidebarTrigger } from "#/components/";
 import React from "react";
 
-export default function Header({
+export function Header({
   routes,
   children
 }: {

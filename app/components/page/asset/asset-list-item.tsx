@@ -212,7 +212,7 @@ export function AssetListItem({
       <CardContent className="p-3">
         <div className="flex gap-3 flex-col lg:flex-row">
           {/* 左侧信息区域 */}
-          <div className="flex-1 min-w-0 max-h-[10rem]">
+          <div className="flex-1 min-w-0 max-h-[10rem] overflow-auto">
             <AssetInfo
               type={type}
               host={host}

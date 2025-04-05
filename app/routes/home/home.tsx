@@ -1,6 +1,5 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components";
-
-import { ArrowRight, Shield, Zap, Search } from "lucide-react";
+import { ArrowRight, Shield, Zap, Search, Network, Code, Bug } from "lucide-react";
 import { ABOUT_ROUTE, LOGIN_ROUTE } from "#/routes";
 import { Link } from "react-router";
 
@@ -8,8 +7,8 @@ export default function Index() {
   return (
     <div className="h-screen flex flex-col justify-center items-center p-8 bg-slate-50">
       <div className="max-w-5xl w-full text-center mb-12">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">ScopeSentry 漏洞扫描系统</h1>
-        <p className="text-xl text-muted-foreground mb-8">全方位的网络安全扫描与漏洞检测解决方案</p>
+        <h1 className="text-4xl font-bold tracking-tight mb-4">ScopeSentry 分布式安全扫描系统</h1>
+        <p className="text-xl text-muted-foreground mb-8">基于分布式架构的资产测绘与漏洞检测平台</p>
         <div className="flex justify-center gap-4">
           <Link to={LOGIN_ROUTE}>
             <Button size="lg">
@@ -28,36 +27,36 @@ export default function Index() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
         <Card>
           <CardHeader>
-            <Shield className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>全面的漏洞检测</CardTitle>
-            <CardDescription>支持多种漏洞类型检测，包括SQL注入、XSS、信息泄露等</CardDescription>
+            <Network className="h-8 w-8 text-primary mb-2" />
+            <CardTitle>分布式资产测绘</CardTitle>
+            <CardDescription>支持多节点部署，灵活配置扫描任务</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              采用先进的扫描引擎，精准识别各类安全威胁，为您的系统提供全面保护
+              通过构建多个节点，自由选择节点运行扫描任务，实现高效的资产发现与管理
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <Zap className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>高效的扫描性能</CardTitle>
-            <CardDescription>分布式架构设计，支持大规模并发扫描任务</CardDescription>
+            <Code className="h-8 w-8 text-primary mb-2" />
+            <CardTitle>插件化架构</CardTitle>
+            <CardDescription>支持自定义插件，灵活扩展扫描能力</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">优化的扫描算法，快速完成资产探测与漏洞分析，节省宝贵时间</p>
+            <p className="text-sm text-muted-foreground">通过插件系统集成各类安全工具，支持自定义WEB指纹和POC导入</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <Search className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>智能资产管理</CardTitle>
-            <CardDescription>自动发现与分类网络资产，构建完整资产图谱</CardDescription>
+            <Bug className="h-8 w-8 text-primary mb-2" />
+            <CardTitle>全面的安全检测</CardTitle>
+            <CardDescription>支持子域名枚举、漏洞扫描、敏感信息检测等</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">持续监控资产变化，及时发现新增资产与潜在风险，保障网络安全</p>
+            <p className="text-sm text-muted-foreground">提供完整的资产安全评估，包括端口扫描、目录扫描、页面监控等功能</p>
           </CardContent>
         </Card>
       </div>

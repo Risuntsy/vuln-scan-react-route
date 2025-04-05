@@ -7,8 +7,8 @@ export default function NavLayout() {
   return (
     <>
       <AppSidebar items={menuItems} />
-      <main className="flex-1">
-        <div className="w-full h-full">
+      <main className="flex-1 overflow-auto">
+        <div className="min-h-full">
           <Outlet />
         </div>
       </main>

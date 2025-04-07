@@ -65,8 +65,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     token
   });
 
-  console.log(list);
-
   return { tasks: list, total, pageIndex, pageSize };
 }
 

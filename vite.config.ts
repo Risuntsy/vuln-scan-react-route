@@ -5,9 +5,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 const env = loadEnv(process.env.NODE_ENV || "dev", process.cwd(), "");
 
+const REAL_BACKEND_URL = env.API_BASE_URL;
+const FRONTEND_SERVER_URL = env.FRONTEND_SERVER_URL;
+
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   define: {
-    "process.env.API_BASE_URL": JSON.stringify(env.API_BASE_URL)
+    "process.env.API_BASE_URL": JSON.stringify(REAL_BACKEND_URL),
+    "process.env.FRONTEND_SERVER_URL": JSON.stringify(FRONTEND_SERVER_URL)
   }
 });

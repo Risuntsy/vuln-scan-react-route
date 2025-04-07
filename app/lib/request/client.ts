@@ -45,7 +45,7 @@ export class ApiClient {
 
   constructor(config?: Partial<ApiClientConfig>) {
     this.config = {
-      baseUrl: process.env.API_BASE_URL || "http://localhost:8080",
+      baseUrl: process.env.API_BASE_URL || "http://localhost:8082/api",
       responseType: "data",
       responseFields: {
         code: "code",

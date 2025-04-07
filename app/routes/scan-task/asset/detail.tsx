@@ -22,8 +22,6 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     return redirect("/404");
   }
 
-  console.log(asset);
-
   return { asset: asset.json };
 }
 

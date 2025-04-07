@@ -75,7 +75,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const [token, rawData] = await Promise.all([getToken(request), request.json()]);
-  console.log(rawData);
   const { data, error: parseError } = formSchema.safeParse(rawData);
 
   if (parseError) {

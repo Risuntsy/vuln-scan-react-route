@@ -13,3 +13,5 @@ export async function getToken(request: Request, redirectToLoginWhenMissing = tr
   }
   return token;
 }
+
+

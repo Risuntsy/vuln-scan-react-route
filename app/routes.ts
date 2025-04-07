@@ -20,6 +20,8 @@ export const SCHEDULED_TASKS_ROUTE = "/scheduled-tasks";
 export const SCHEDULED_TASK_ROUTE = "/scheduled-task/:taskId";
 export const SCHEDULED_TASK_EDIT_ROUTE = SCHEDULED_TASK_ROUTE + "/edit";
 export const TEMPLATES_ROUTE = "/templates";
+export const TEMPLATE_EDIT_ROUTE = "/template/:templateId/edit";
+export const TEMPLATE_CREATE_ROUTE = "/template/create";
 
 const mainRoutes = [
   route(DASHBOARD_ROUTE, "routes/home/dashboard.tsx"),
@@ -31,7 +33,9 @@ const mainRoutes = [
   route(ASSET_ROUTE, "routes/scan-task/asset/detail.tsx"),
   route(SCHEDULED_TASKS_ROUTE, "routes/scheduled-task/list.tsx"),
   route(SCHEDULED_TASK_EDIT_ROUTE, "routes/scheduled-task/create-and-edit.tsx", { id: "edit-scheduled-task" }),
-  route(TEMPLATES_ROUTE, "routes/scan-task/template.tsx")
+  route(TEMPLATES_ROUTE, "routes/scan-task/template.tsx"),
+  route(TEMPLATE_EDIT_ROUTE, "routes/scan-task/template/create-and-edit.tsx", { id: "edit-template" }),
+  route(TEMPLATE_CREATE_ROUTE, "routes/scan-task/template/create-and-edit.tsx", { id: "create-template" })
 ];
 
 const navLayoutRoutes = layout("layouts/nav-layout.tsx", mainRoutes);

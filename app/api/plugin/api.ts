@@ -52,7 +52,6 @@ export async function getPluginDataByModule({ module, token }: { module: string 
 export async function reInstallPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
   return apiClient.post<CommonMessage>("/plugin/reinstall", data, {
     headers: { Authorization: token },
-    enableLog: true
   });
 }
 

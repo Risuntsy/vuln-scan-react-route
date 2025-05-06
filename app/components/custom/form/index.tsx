@@ -1,4 +1,4 @@
-"use client";
+;
 
 import { cn } from "#/lib/utils";
 import { Info, AlertCircle, Search, X, CheckSquare } from "lucide-react";

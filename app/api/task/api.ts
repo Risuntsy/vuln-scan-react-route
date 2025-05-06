@@ -174,7 +174,6 @@ export async function getTemplateDetail({ id, token }: BaseRequest & { id: strin
 export async function saveTemplateDetail({ token, ...data }: BaseRequest & { result: TemplateDetail; id?: string }) {
   return apiClient.post<TemplateDetail>("/task/template/save", data, {
     headers: { Authorization: token },
-    enableLog: true
   });
 }
 

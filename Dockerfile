@@ -1,22 +1,48 @@
-FROM node:20-alpine AS development-dependencies-env
-COPY . /app
+# Build stage
+FROM node:22-alpine AS builder
 WORKDIR /app
-RUN npm ci
 
-FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
-WORKDIR /app
-RUN npm ci --omit=dev
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-FROM node:20-alpine AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
-RUN npm run build
+# Add non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-FROM node:20-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
+# Install dependencies first (better caching)
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+
+# Build the application
+RUN pnpm run build
+
+# Production stage
+FROM node:22-alpine
 WORKDIR /app
-CMD ["npm", "run", "start"]
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Add non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Install production dependencies and @react-router/dev
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod && \
+    pnpm add @react-router/dev
+
+# Copy built assets from builder
+COPY --from=builder --chown=appuser:appgroup /app/build ./build
+
+# Set proper permissions
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 3000
+
+# Start the application
+CMD ["pnpm", "run", "start"]

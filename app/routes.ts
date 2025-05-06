@@ -92,6 +92,7 @@ const routes: RouteConfig = [
   route(LOGIN_ROUTE, "routes/home/login.tsx"),
   route(ABOUT_ROUTE, "routes/home/about.tsx"),
   route(LOGOUT_ROUTE, "routes/home/logout.tsx"),
+  route("/health", "routes/home/health.tsx"),
   layout("layouts/provider-layout.tsx", [authLayoutRoutes])
 ];
 

@@ -11,3 +11,4 @@ export * from "./vul";
 export * from "./export";
 export * from "./poc";
 export * from "./plugin";
+export * from "./fingerprint";

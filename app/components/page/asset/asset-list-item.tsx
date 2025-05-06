@@ -67,7 +67,7 @@ function AssetInfo({ type, host, domain, ip, port, id, statuscode, status, title
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return date.toISOString().replace("T", " ").replace("Z", "").slice(0, 19);
   };
 
   const getStatusVariant = (status: number) => {

@@ -8,16 +8,27 @@ import {
 } from "#/components/";
 import { SidebarTrigger } from "#/components/";
 import React from "react";
+import { cn } from "#/lib/utils";
+
+
+export type HeaderRoute = {
+  name: string;
+  href?: string;
+}
+
+interface HeaderProps {
+  routes?: HeaderRoute[];
+  className?: string;
+  children?: React.ReactNode;
+}
 
 export function Header({
   routes,
+  className,
   children
-}: {
-  routes?: { name: string; href?: string }[];
-  children?: React.ReactNode;
-}) {
+}: HeaderProps) {
   return (
-    <div className="flex flex-col gap-4 p-4 border-b bg-background pb-1">
+    <div className={cn("flex flex-col gap-4 p-4 border-b bg-background pb-1", className)}>
       <div className="flex items-center gap-2">
         <SidebarTrigger className="border-2" />
         {routes && (

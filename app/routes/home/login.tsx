@@ -32,7 +32,12 @@ export async function action({ request }: Route.ActionArgs) {
     return { success: false, message: error.message };
   }
 
-  const { token } = await login(data);
+  const { token, message } = await login(data);
+
+  if (!token) {
+    return { success: false, message };
+  }
+
   return redirect(data.redirect || DASHBOARD_ROUTE, {
     headers: {
       "Set-Cookie": await tokenCookie.serialize(token)
@@ -44,7 +49,7 @@ export default function LoginPage() {
   const { success, message } = useActionData<typeof action>() || {};
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
+    <div className="flex h-screen w-screen items-center justify-center p-4">
       <Card className="w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center">漏洞扫描系统</CardTitle>
@@ -69,7 +74,7 @@ export default function LoginPage() {
                     placeholder="请输入用户名"
                     className="pl-10"
                     required
-                    defaultValue="ScopeSentry"
+                    defaultValue=""
                   />
                 </div>
               </div>
@@ -84,7 +89,7 @@ export default function LoginPage() {
                     placeholder="请输入密码"
                     className="pl-10"
                     required
-                    defaultValue="AJYvD7oJ"
+                    defaultValue=""
                   />
                 </div>
               </div>

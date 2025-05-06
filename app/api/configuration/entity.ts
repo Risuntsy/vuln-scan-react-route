@@ -57,3 +57,15 @@ export interface AddNotificationRequest {
 export interface UpdateNotificationRequest extends AddNotificationRequest {
   id: string;
 }
+
+export interface SystemConfig {
+  ModulesConfig: string;
+  timezone: string;
+}
+
+
+export interface SubfinderConfig {
+  content: string;
+}
+
+export type RadConfig = SubfinderConfig

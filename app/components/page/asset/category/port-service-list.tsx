@@ -24,26 +24,19 @@ type PortServiceListProps = Omit<GenericStatisticsListProps, "title" | "tagType"
 export function PortServiceList(props: PortServiceListProps) {
   const renderPortItem = (item: StatisticsItem) => (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
+      <span className="flex items-center gap-2">
         <span className="text-sm">{item.value}</span>
         {COMMON_PORTS[item.value as string] && (
           <span className="text-muted-foreground text-xs">({COMMON_PORTS[item.value as string]})</span>
         )}
-      </div>
-      <div className="flex-shrink-0">
+      </span>
+      <span className="flex-shrink-0">
         <span className="bg-secondary text-secondary-foreground rounded-md text-xs px-2 py-0.5">
           {item.number.toLocaleString()}
         </span>
-      </div>
+      </span>
     </div>
   );
 
-  return (
-    <GenericStatisticsList
-      {...props}
-      title="端口服务"
-      tagType="port"
-      renderItem={renderPortItem}
-    />
-  );
+  return <GenericStatisticsList {...props} title="端口服务" tagType="port" renderItem={renderPortItem} />;
 }

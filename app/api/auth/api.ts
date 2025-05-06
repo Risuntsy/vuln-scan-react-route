@@ -1,18 +1,20 @@
 import { apiClient } from "#/lib";
+import type { BaseRequest, BaseResponse } from "../common";
+import type { LoginResponse } from "./entity";
 
 export async function login(data: { username: string; password: string }) {
-  interface LoginResponse {
-    access_token: string;
-  }
-
-  const response = await apiClient.post<LoginResponse>("/user/login", data, {
+  const response = await apiClient.post<BaseResponse<LoginResponse>>("/user/login", data, {
     withCredentials: false,
+    responseType: "object",
+    enableLog: true
   });
-  return { token: `Bearer ${response.access_token}` };
+  return { token: response.data ? `Bearer ${response.data.access_token}` : null, message: response.message };
 }
 
-export async function changePassword(data: { newPassword: string }) {
+export async function changePassword({ token, ...data }: { newPassword: string } & BaseRequest) {
   return apiClient.post("/user/changePassword", data, {
-    withCredentials: true
+    headers: {
+      Authorization: token
+    }
   });
 }

@@ -6,7 +6,23 @@ import {
   useSearchParams,
   type SetURLSearchParams
 } from "react-router";
-import { Globe, Network, Calendar, Clock, FileText, ChevronLeft, ChevronRight, Delete, Recycle } from "lucide-react";
+import {
+  Globe,
+  Network,
+  Calendar,
+  Clock,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  RefreshCw,
+  CheckCircle,
+  XCircle,
+  Loader,
+  BarChart,
+  List
+} from "lucide-react";
+import { cn } from "#/lib";
 
 import { getToken, r, getSearchParams } from "#/lib";
 import { getAssetStatistics, getTaskDetail, getTaskProgress, type TaskDetail, type TaskProgessInfo } from "#/api";
@@ -15,7 +31,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  ScrollArea,
   Badge,
   Button,
   ScanTaskHeader,
@@ -26,10 +41,11 @@ import {
   TableHeader,
   TableRow
 } from "#/components";
-import { SCAN_TASK_ASSETS_ROUTE } from "#/routes";
+import { ASSET_ROUTE, SCAN_TASK_ASSETS_ROUTE, SCAN_TASK_STATISTICS_ROUTE } from "#/routes";
 
 import { PortServiceList, ServiceTypeList, StatisticsList, ServiceIconGrid } from "#/components";
 import { CustomPagination } from "#/components";
+import { EmptyPlaceholder } from "#/components/custom/empty-placeholder";
 
 const overviewItems = [
   {
@@ -83,6 +99,39 @@ function getProgressStatus(times: string[]) {
   if (times.length === 0) return "未开始";
   if (times.length === 2) return "已完成";
   return "进行中";
+}
+
+// Helper to get icon and style for progress status
+function getProgressBadge(status: string): React.ReactNode {
+  let IconComponent;
+  let variant: "default" | "secondary" | "destructive" | "outline" = "outline";
+  let className = "";
+
+  switch (status) {
+    case "已完成":
+      IconComponent = CheckCircle;
+      variant = "default";
+      className = "bg-green-100 text-green-700 border-green-200";
+      break;
+    case "进行中":
+      IconComponent = Loader; // Use Loader icon for running
+      variant = "secondary";
+      className = "bg-blue-100 text-blue-700 border-blue-200 animate-pulse";
+      break;
+    case "未开始":
+    default:
+      IconComponent = XCircle;
+      variant = "outline";
+      className = "bg-gray-100 text-gray-500 border-gray-200";
+      break;
+  }
+
+  return (
+    <Badge variant={variant} className={cn("flex items-center gap-1", className)}>
+      <IconComponent className="h-3 w-3" />
+      <span>{status}</span>
+    </Badge>
+  );
 }
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -152,16 +201,28 @@ export default function TaskOverviewPage() {
     return <div className="p-4 space-y-4">{error}</div>;
   }
 
+  assetStatistics.Icon.forEach(item => {
+    item.href = r(SCAN_TASK_ASSETS_ROUTE, { variables: { taskId } });
+  });
+
   return (
     <div>
       <ScanTaskHeader taskId={taskId} taskDetail={taskDetail} routes={[{ name: "任务概览" }]}>
-        <Link to={r(SCAN_TASK_ASSETS_ROUTE, { variables: { taskId } })}>s
-          <Button variant="default">所有资产</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link to={r(SCAN_TASK_STATISTICS_ROUTE, { variables: { taskId } })}>
+            <Button variant="outline">
+              <BarChart className="w-4 h-4 mr-2" />
+              统计信息
+            </Button>
+          </Link>
+          <Link to={r(SCAN_TASK_ASSETS_ROUTE, { variables: { taskId } })}>
+            <Button variant="default">所有资产</Button>
+          </Link>
+        </div>
       </ScanTaskHeader>
 
       <div className="p-2 space-y-2">
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           {overviewItems.map(({ title, icon: Icon, description, format }) => (
             <Card key={title}>
               <CardHeader className="pb-2">
@@ -196,61 +257,48 @@ export default function TaskOverviewPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>扫描目标</TableHead>
-                  <TableHead>节点</TableHead>
-                  {progressItems.map(({ label }) => (
-                    <TableHead key={label}>{label}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {taskProgress?.map((progress: TaskProgessInfo, index: number) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-mono">{progress.target}</TableCell>
-                    <TableCell>{progress.node}</TableCell>
-                    {progressItems.map(({ key }) => {
-                      const times = progress[key] as string[];
-                      const status = getProgressStatus(times);
-                      const statusConfig = {
-                        completed: {
-                          variant: "default" as const,
-                          className: "bg-green-600 text-white dark:bg-green-700 dark:text-green-100"
-                        },
-                        running: {
-                          variant: "secondary" as const,
-                          className: "bg-blue-600 text-white dark:bg-blue-700 dark:text-blue-100"
-                        },
-                        default: {
-                          variant: "outline" as const,
-                          className: "bg-gray-600 text-white dark:bg-gray-700 dark:text-gray-100"
-                        }
-                      }[status === "已完成" ? "completed" : status === "进行中" ? "running" : "default"];
-
-                      return (
-                        <TableCell key={key}>
-                          <Badge variant={statusConfig.variant} className={statusConfig.className}>
-                            {status}
-                          </Badge>
-                        </TableCell>
-                      );
-                    })}
+            {taskProgress && taskProgress.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>扫描目标</TableHead>
+                    <TableHead>节点</TableHead>
+                    {progressItems.map(({ label }) => (
+                      <TableHead key={label}>{label}</TableHead>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {taskProgress.map((progress: TaskProgessInfo, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-mono">{progress.target}</TableCell>
+                      <TableCell>{progress.node}</TableCell>
+                      {progressItems.map(({ key }) => {
+                        const times = progress[key] as string[];
+                        const status = getProgressStatus(times);
+                        return <TableCell key={key}>{getProgressBadge(status)}</TableCell>;
+                      })}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <EmptyPlaceholder
+                icon={<List className="h-12 w-12 text-muted-foreground" />}
+                title="没有扫描进度数据"
+                description="此任务可能尚未开始或没有进度记录。"
+              />
+            )}
           </CardContent>
         </Card>
 
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          <PortServiceList className="max-h-[32rem]" data={assetStatistics.Port} />
-          <ServiceTypeList className="max-h-[32rem]" data={assetStatistics.Service} />
-          <StatisticsList className="max-h-[32rem]" data={assetStatistics.Product} />
+          <PortServiceList className="max-h-[32rem]" data={assetStatistics.Port} taskId={taskId} />
+          <ServiceTypeList className="max-h-[32rem]" data={assetStatistics.Service} taskId={taskId} />
+          <StatisticsList className="max-h-[32rem]" data={assetStatistics.Product} taskId={taskId} />
         </div>
 
-        <ServiceIconGrid data={assetStatistics.Icon} />
+        <ServiceIconGrid data={assetStatistics.Icon} taskId={taskId} />
       </div>
     </div>
   );

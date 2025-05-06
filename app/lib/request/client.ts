@@ -1,6 +1,5 @@
 import { authResponseInterceptor } from "./auth";
 import { UrlBuilder } from "#/lib";
-
 export interface RequestConfig {
   url: string;
   method: string;
@@ -96,7 +95,21 @@ export class ApiClient {
       body: processedConfig.data && processedConfig.method !== "GET" ? JSON.stringify(processedConfig.data) : undefined
     };
 
+    if (processedConfig.enableLog) {
+      console.log(`${processedConfig.method} ${url}
+request: ${JSON.stringify(fetchOptions, null, 2)}`);
+    }
+
+    const startTime = performance.now();
     let rawResponse: Response = await fetch(url, fetchOptions);
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+
+    // await sleep(1000);
+
+    if (duration > 100) {
+      console.warn(`Slow request detected: ${processedConfig.method} ${url} took ${duration.toFixed(2)}ms`);
+    }
 
     const serializableMetadata: {
       ok: boolean;
@@ -148,11 +161,14 @@ export class ApiClient {
     serializableMetadata.body = data;
     delete (fetchOptions as any)._ogBody;
     fetchOptions.body = processedConfig.data;
-    const logInfo = `${processedConfig.method} ${url}
-request: ${JSON.stringify(fetchOptions, null, 2)}
-response: ${JSON.stringify(serializableMetadata, null, 2)}`;
+    const logInfo = `response: ${JSON.stringify(serializableMetadata, null, 2)}`;
     if (config.enableLog) {
       console.log(logInfo);
+    }
+
+    // 如果responseType为object，则直接返回data
+    if (responseType === "object") {
+      return data as T;
     }
 
     let processedResponse = data;
@@ -160,10 +176,6 @@ response: ${JSON.stringify(serializableMetadata, null, 2)}`;
       for (const interceptor of this.config.interceptors.response) {
         processedResponse = await interceptor(processedResponse);
       }
-    }
-
-    if (responseType === "object") {
-      return processedResponse as T;
     }
 
     if (responseType === "data") {

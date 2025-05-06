@@ -1,7 +1,6 @@
 export interface TemplateDetail {
   id?: string;
   name: string;
-  TargetHandler: string[];
   Parameters: {
     TargetHandler: Record<string, string>;
     SubdomainScan: Record<string, string>;
@@ -17,6 +16,7 @@ export interface TemplateDetail {
     DirScan: Record<string, string>;
     VulnerabilityScan: Record<string, string>;
   };
+  TargetHandler: string[];
   SubdomainScan: string[];
   SubdomainSecurity: string[];
   PortScanPreparation: string[];

@@ -13,7 +13,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getOverallAssetStatistics({ token }),
     getTaskData({ pageSize: 5, token }),
     getNodeData({ token }),
-    getVersionData({ token })
+    {
+      list: []
+    }
+    // getVersionData({ token })
   ]);
 
   const runningTasks = nodeData.list.reduce((acc: number, node: { running: number }) => acc + node.running, 0);
@@ -226,7 +229,7 @@ function NodeStatusCard({ nodeData }: { nodeData: { list: NodeData[] } }) {
             <div key={index} className="flex flex-col border-b pb-3 last:border-0 last:pb-0">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
-                  <HardDrive className={`w-4 h-4 mr-2 ${node.state === 1 ? "text-green-500" : "text-red-500"}`} />
+                  <HardDrive className={`w-4 h-4 mr-2 ${node.state === "1" ? "text-green-500" : "text-red-500"}`} />
                   <p className="text-sm font-medium">{node.name}</p>
                 </div>
               </div>

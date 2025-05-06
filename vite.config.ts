@@ -13,5 +13,10 @@ export default defineConfig({
   define: {
     "process.env.API_BASE_URL": JSON.stringify(REAL_BACKEND_URL),
     "process.env.FRONTEND_SERVER_URL": JSON.stringify(FRONTEND_SERVER_URL)
+  },
+  build: {
+    rollupOptions: {
+      external: ["react", "react-dom"]
+    }
   }
 });

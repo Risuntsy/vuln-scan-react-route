@@ -54,23 +54,6 @@ export async function getAssetStatistics({ token, ...data }: BaseRequest & Filte
     getAssetStatisticsApp({ ...data, token })
   ]);
 
-  // TODO: 添加链接
-  // portStatistic.Port?.forEach(item => {
-  //   item.href = `${r.ASSETS_ROUTE}/${item.value}`;
-  // });
-
-  // typeStatistic.Service?.forEach(item => {
-  //   item.href = `${r.ASSETS_ROUTE}/${item.value}`;
-  // });
-
-  // iconStatistic.Icon?.forEach(item => {
-  //   item.href = `${r.ASSETS_ROUTE}/${item.value}`;
-  // });
-
-  // appStatistic.Product?.forEach(item => {
-  //   item.href = `${r.ASSETS_ROUTE}/${item.value}`;
-  // });
-
   return {
     Port: portStatistic.Port || [],
     Service: typeStatistic.Service || [],

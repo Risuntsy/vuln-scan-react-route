@@ -1,8 +1,9 @@
 export interface SensitiveData {
   id: string;
-  sensitiveName: string;
-  sensitiveRegular: string;
-  sensitiveColor: string;
+  name: string;
+  regular: string;
+  color: string;
+  state: boolean;
 }
 
 export interface SensitiveAddData {

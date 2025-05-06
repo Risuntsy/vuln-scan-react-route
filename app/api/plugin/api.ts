@@ -26,7 +26,11 @@ export async function checkKey({ key, token }: { key: string } & BaseRequest) {
 }
 
 export async function getPluginLog({ module, hash, token }: { module: string; hash: string } & BaseRequest) {
-  return apiClient.post<PluginLog>("/plugin/log", { module, hash }, { headers: { Authorization: token } });
+  return apiClient.post<PluginLog>(
+    "/plugin/log",
+    { module, hash },
+    { headers: { Authorization: token }, responseType: "object" }
+  );
 }
 
 export async function cleanPluginLog({ module, hash, token }: { module: string; hash: string } & BaseRequest) {
@@ -46,13 +50,16 @@ export async function getPluginDataByModule({ module, token }: { module: string 
 // }
 
 export async function reInstallPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
-  return apiClient.post<ListResponse<PluginData>>("/plugin/reinstall", data, { headers: { Authorization: token } });
+  return apiClient.post<CommonMessage>("/plugin/reinstall", data, {
+    headers: { Authorization: token },
+    enableLog: true
+  });
 }
 
 export async function reCheckPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
-  return apiClient.post<ListResponse<PluginData>>("/plugin/recheck", data, { headers: { Authorization: token } });
+  return apiClient.post<CommonMessage>("/plugin/recheck", data, { headers: { Authorization: token } });
 }
 
 export async function uninstallPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
-  return apiClient.post<ListResponse<PluginData>>("/plugin/uninstall", data, { headers: { Authorization: token } });
+  return apiClient.post<CommonMessage>("/plugin/uninstall", data, { headers: { Authorization: token } });
 }

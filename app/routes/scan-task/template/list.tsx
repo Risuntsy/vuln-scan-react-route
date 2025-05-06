@@ -1,7 +1,7 @@
 import { useLoaderData, useSearchParams, type LoaderFunctionArgs, Link, useFetcher, Form } from "react-router";
-import { getToken, getSearchParams } from "#/lib";
+import { getToken, getSearchParams, r, sleep } from "#/lib";
 import { getTemplateData, deleteTemplateDetail } from "#/api";
-import { DASHBOARD_ROUTE, TEMPLATE_CREATE_ROUTE } from "#/routes";
+import { DASHBOARD_ROUTE, TEMPLATE_CREATE_ROUTE, TEMPLATE_EDIT_ROUTE } from "#/routes";
 import {
   Button,
   Card,
@@ -57,12 +57,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: LoaderFunctionArgs) {
-  const token = await getToken(request);
-  const formData = await request.formData();
-  const action = formData.get("_action") as string;
+  const [{ templateId, _action: action }, token] = await Promise.all([request.json(), getToken(request)]);
 
   if (action === "delete") {
-    const templateId = formData.get("templateId") as string;
     if (!templateId) {
       return { success: false, message: "缺少模板ID" };
     }
@@ -90,7 +87,7 @@ export default function ScanTemplatePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <div className="flex flex-1 flex-col h-full p-2 space-y-2">
       <Header routes={[{ name: "Dashboard", href: DASHBOARD_ROUTE }, { name: "扫描模板" }]}>
         <div className="flex items-center justify-between w-full">
           <div>
@@ -106,7 +103,7 @@ export default function ScanTemplatePage() {
         </div>
       </Header>
 
-      <Card className="flex flex-1 overflow-hidden m-6 p-2">
+      <Card className="flex flex-1 overflow-hidden">
         <div className="flex-1">
           <Table className="h-full">
             <TableHeader className="sticky top-0 bg-background z-10">
@@ -120,10 +117,10 @@ export default function ScanTemplatePage() {
                 templates.map(template => (
                   <React.Fragment key={template.id}>
                     <TableRow>
-                      <TableCell className="font-medium">{template.name}</TableCell>
+                      <TableCell className="font-medium">{!!template.name ? template.name : "-"}</TableCell>
                       <TableCell className="text-right space-x-2">
                         <Button variant="outline" size="sm" className="h-8" asChild>
-                          <Link to={`edit/${template.id}`}>
+                          <Link to={r(TEMPLATE_EDIT_ROUTE, { variables: { templateId: template.id } })}>
                             <Pencil className="w-4 h-4 mr-2" />
                             编辑
                           </Link>
@@ -142,11 +139,17 @@ export default function ScanTemplatePage() {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>取消</AlertDialogCancel>
-                              <Form method="post">
-                                <input type="hidden" name="_action" value="delete" />
-                                <input type="hidden" name="templateId" value={template.id} />
-                                <AlertDialogAction type="submit">删除</AlertDialogAction>
-                              </Form>
+                              <Button
+                                onClick={() =>
+                                  fetcher.submit(
+                                    { templateId: template.id, _action: "delete" },
+                                    { method: "post", encType: "application/json" }
+                                  )
+                                }
+                                disabled={fetcher.state !== "idle"}
+                              >
+                                {fetcher.state !== "idle" ? <span className="animate-spin">⏳</span> : "删除"}
+                              </Button>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>

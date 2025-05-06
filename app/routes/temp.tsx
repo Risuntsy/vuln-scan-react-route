@@ -1,4 +1,4 @@
-import { Button } from "#/components";
+import { Button, errorToast, successToast, Tiptap, Toaster } from "#/components";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,7 +10,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "#/components";
-import { Form, useActionData, useSubmit, type ActionFunctionArgs } from "react-router";
+import { useEffect, useState } from "react";
+import { Form, useActionData, useSubmit, type ActionFunctionArgs, useFetcher } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
   // const formData = await request.formData();
@@ -22,11 +23,27 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function TempPage() {
-  const result = useActionData<typeof action>();
-  const submit = useSubmit();
+  const fetcher = useFetcher();
+
+  const [content, setContent] = useState(``);
+
+  useEffect(() => {
+    if (fetcher.data) {
+      console.log(fetcher.data);
+      if (fetcher.data?.success) {
+        successToast("操作成功");
+      } else {
+        errorToast(fetcher.data?.message || "操作失败");
+      }
+    }
+  }, [fetcher.data]);
+
   return (
     <div className="h-screen w-screen">
-      <div>{JSON.stringify(result)}</div>
+      <div>
+        <Tiptap content={content} onChange={setContent} />
+      </div>
+
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button variant="outline">Show Dialog</Button>
@@ -41,26 +58,26 @@ export default function TempPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>
-              <Button
-                onClick={() => {
-                  submit(
-                    {
-                      action: "test"
-                    },
-                    {
-                      method: "post",
-                      encType: "application/json"
-                    }
-                  );
-                }}
-              >
-                Continue
-              </Button>
+            <AlertDialogAction
+              onClick={async () => {
+                await fetcher.submit(
+                  {
+                    action: "test"
+                  },
+                  {
+                    method: "post",
+                    encType: "application/json"
+                  }
+                );
+              }}
+            >
+              Continue
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Toaster />
     </div>
   );
 }

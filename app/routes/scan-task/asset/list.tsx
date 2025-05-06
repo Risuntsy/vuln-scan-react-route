@@ -162,7 +162,7 @@ export default function ScanTaskAssetPage() {
         </div>
 
         <div className="lg:w-80 max-h-[calc(100vh-10rem)] lg:max-h-[calc(100vh-9rem)]">
-          <StatisticsSidebar selectTag={selectTag} removeTag={removeTag} assetStatistics={assetStatistics} />
+          <StatisticsSidebar selectTag={selectTag} removeTag={removeTag} assetStatistics={assetStatistics} taskId={taskId} />
         </div>
       </div>
     </div>
@@ -332,7 +332,8 @@ function AssetListSection({ list }: { list: AssetData[] }) {
 function StatisticsSidebar({
   selectTag,
   removeTag,
-  assetStatistics
+  assetStatistics,
+  taskId
 }: {
   selectTag: (type: string, value: string | number) => void;
   removeTag: (type: string, value: string | number) => void;
@@ -342,13 +343,14 @@ function StatisticsSidebar({
     Icon: IconStatisticsItem[];
     Product: StatisticsItem[];
   };
+  taskId: string;
 }) {
   return (
     <ScrollArea className="flex flex-col gap- h-full">
-      <PortServiceList data={assetStatistics.Port} compact selectTag={selectTag} removeTag={removeTag} />
-      <ServiceTypeList data={assetStatistics.Service} compact selectTag={selectTag} removeTag={removeTag} />
-      <StatisticsList data={assetStatistics.Product} compact selectTag={selectTag} removeTag={removeTag} />
-      <ServiceIconGrid data={assetStatistics.Icon} compact selectTag={selectTag} removeTag={removeTag} />
+      <PortServiceList data={assetStatistics.Port} compact selectTag={selectTag} removeTag={removeTag} taskId={taskId} />
+      <ServiceTypeList data={assetStatistics.Service} compact selectTag={selectTag} removeTag={removeTag} taskId={taskId} />
+      <StatisticsList data={assetStatistics.Product} compact selectTag={selectTag} removeTag={removeTag} taskId={taskId} />
+      <ServiceIconGrid data={assetStatistics.Icon} compact selectTag={selectTag} removeTag={removeTag} taskId={taskId} />
     </ScrollArea>
   );
 }

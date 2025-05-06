@@ -126,7 +126,7 @@ export function TaskListLayout({
   showDownload
 }: TaskListLayoutProps) {
   return (
-    <div className="space-y-2 max-w-screen h-full">
+    <div className="space-y-2 max-w-screen h-full p-2">
       <Header routes={routes}>
         <div className="flex items-center gap-2 justify-between w-full">
           <div>

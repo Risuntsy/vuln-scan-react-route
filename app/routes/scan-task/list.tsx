@@ -346,7 +346,7 @@ export default function ScanTasksPage() {
   const { tasks, total, pageIndex, pageSize } = useLoaderData<typeof loader>();
 
   return (
-    <div className="space-y-2 max-w-screen h-full">
+    <div className="space-y-2 max-w-screen h-full p-2">
       <Header routes={[{ name: "Dashboard", href: DASHBOARD_ROUTE }, { name: "扫描任务" }]}>
         <div className="flex items-center gap-2 justify-between w-full">
           <div>

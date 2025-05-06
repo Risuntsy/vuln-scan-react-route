@@ -48,6 +48,7 @@ export interface AssetScreenshot {
 export interface StatisticsItem {
   value: string | number;
   number: number;
+  href?: string;
 }
 
 export interface IconStatisticsItem extends StatisticsItem {

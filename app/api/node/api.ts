@@ -45,7 +45,8 @@ export async function getNodeLog({ token, name }: BaseRequest & { name: string }
     "/node/log/data",
     { name },
     {
-      headers: { Authorization: token }
+      headers: { Authorization: token },
+      responseType:"object"
     }
   );
 }

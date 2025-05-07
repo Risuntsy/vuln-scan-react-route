@@ -10,6 +10,7 @@ import { login } from "#/api";
 import { tokenCookie, getToken } from "#/lib";
 import { DASHBOARD_ROUTE } from "#/routes";
 import type { Route } from "./+types/login";
+import { APP_NAME } from "#/configs";
 
 const loginSchema = z.object({
   username: z.string().min(1),
@@ -52,7 +53,7 @@ export default function LoginPage() {
     <div className="flex h-screen w-screen items-center justify-center p-4">
       <Card className="w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">漏洞扫描系统</CardTitle>
+          <CardTitle className="text-2xl text-center">{APP_NAME}</CardTitle>
           <CardDescription className="text-center">请输入您的账号和密码登录</CardDescription>
         </CardHeader>
         <CardContent>

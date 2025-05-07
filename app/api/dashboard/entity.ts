@@ -1,5 +1,5 @@
 export interface AssetStatisticsResponse {
-  asetCount: number;
+  assetCount: number;
   subdomainCount: number;
   sensitiveCount: number;
   urlCount: number;

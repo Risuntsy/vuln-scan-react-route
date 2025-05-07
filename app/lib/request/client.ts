@@ -102,6 +102,10 @@ request: ${JSON.stringify(fetchOptions, null, 2)}`);
 
     const startTime = performance.now();
     let rawResponse: Response = await fetch(url, fetchOptions);
+
+    if(processedConfig.enableLog) {
+      console.log(`${processedConfig.method} ${url} response status: ${rawResponse.status} ${rawResponse.statusText}`);
+    }
     const endTime = performance.now();
     const duration = endTime - startTime;
 
@@ -154,8 +158,10 @@ request: ${JSON.stringify(fetchOptions, null, 2)}`);
     const contentType = rawResponse.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       data = await rawResponse.json();
-    } else {
+    } else if (contentType && contentType.includes("text/plain")) {
       data = await rawResponse.text();
+    } else {
+      throw new Error("Unsupported response type");
     }
 
     serializableMetadata.body = data;

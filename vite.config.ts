@@ -16,8 +16,5 @@ export default defineConfig({
     "process.env.FRONTEND_SERVER_URL": JSON.stringify(FRONTEND_SERVER_URL)
   },
   build: {
-    rollupOptions: {
-      // external: ["react", "react-dom"]
-    }
   }
 });

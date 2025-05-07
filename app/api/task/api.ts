@@ -28,7 +28,7 @@ export async function getTaskData({
   return apiClient.post<ListResponse<TaskData>>(
     "/task/data",
     { search, pageIndex, pageSize },
-    { headers: { Authorization: token } }
+    { headers: { Authorization: token }}
   );
 }
 

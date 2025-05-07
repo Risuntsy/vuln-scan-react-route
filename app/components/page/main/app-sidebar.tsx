@@ -19,6 +19,7 @@ import { User, Settings, LogOut, Bell, ChevronsUpDown } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "#/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "#/components/ui/accordion";
+import { APP_NAME } from "#/configs";
 
 // 用户菜单配置
 const userMenuItems: ({ icon?: React.ElementType; label?: string; href?: string; variant?: "danger" } & {
@@ -120,7 +121,7 @@ export function AppSidebar({ items }: { items: SideBarItem[] }) {
     <Sidebar variant="floating" className="border-r shadow-sm">
       <SidebarHeader className="p-4 flex items-center">
         <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold">漏洞扫描系统</span>
+          <span className="text-lg font-semibold">{APP_NAME}</span>
         </div>
       </SidebarHeader>
       <SidebarContent className="px-3 py-2">

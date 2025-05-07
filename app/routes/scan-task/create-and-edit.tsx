@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { AlertCircle, ArrowLeft, Play } from "lucide-react";
 
 import { getToken, r } from "#/lib";
-import { getNodeDataOnline, getTemplateData, addTask } from "#/api";
+import { getNodeDataOnline, getTemplateData, addTask, getTaskDetail } from "#/api";
 import { SCAN_TASKS_ROUTE } from "#/routes";
 import {
   Button,
@@ -103,11 +103,11 @@ export default function CreateScanTaskPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      name: "Test114",
-      target: "*.risun.icu",
+      name: "",
+      target: "",
       ignore: "",
-      template: "67e6c01cb8a97489cfdf4aa3",
-      node: ["node-test"],
+      template: "",
+      node: [],
       scheduledTasks: false,
       duplicates: "None",
       tp: "scan",

@@ -6,15 +6,14 @@ import {
   useSubmit,
   useFetcher,
   redirect,
-  useNavigate,
-  useLocation
+  useNavigate
 } from "react-router";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { AlertCircle, ArrowLeft, Play } from "lucide-react";
 
 import { getToken, r } from "#/lib";
-import { getNodeDataOnline, getTemplateData, addTask, getTaskDetail } from "#/api";
+import { getNodeDataOnline, getTemplateData, addTask } from "#/api";
 import { SCAN_TASKS_ROUTE } from "#/routes";
 import {
   Button,
@@ -40,12 +39,13 @@ const formSchema = z.object({
   name: z.string().min(1, "任务名称不能为空"),
   target: z.string().min(1, "目标不能为空"),
   ignore: z.string().default(""),
-  allNode: z.boolean().default(true),
+  allNode: z.boolean().default(false),
   node: z.array(z.string()),
   scheduledTasks: z.boolean().default(false),
   duplicates: z.enum(["None", "subdomain"]).default("None"),
+  cycleType: z.enum(["daily"]).default("daily"),
   template: z.string(),
-  hour: z.number().default(24),
+  hour: z.number().max(23).default(23),
   tp: z.string().default("scan"),
   targetTp: z.string().default("select"),
   search: z.string().default(""),
@@ -93,8 +93,6 @@ export async function action({ request }: ActionFunctionArgs) {
   return redirect(SCAN_TASKS_ROUTE);
 }
 export default function CreateScanTaskPage() {
-  const isCreateTask = useLocation().pathname.endsWith("create");
-
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const { success, message } = useActionData<typeof action>() || {};
@@ -193,7 +191,7 @@ example.com`}
                 <p className="text-sm text-muted-foreground">域名格式需要加通配符，否则进行全等判断</p>
               </CustomFormField>
 
-              <CustomFormField name="node" label="节点">
+              <CustomFormField name="node" label="节点" required>
                 <MultipleSelector
                   options={nodeList}
                   value={form.watch("node").map(node => ({ label: node, value: node }))}
@@ -203,10 +201,10 @@ example.com`}
                       value.map(item => item.value)
                     );
                   }}
-                  disabled={nodeList.length === 0 || form.watch("allNode")}
+                  disabled={nodeList.length === 0}
                   emptyIndicator={
                     <p className="text-sm text-muted-foreground">
-                      {nodeList.length === form.watch("node").length ? "已选择所有节点" : "无在线节点"}
+                      {nodeList.length === 0 ? "无在线节点" : "没有更多节点可选"}
                     </p>
                   }
                 />
@@ -234,7 +232,7 @@ example.com`}
                 />
               </CustomFormField>
 
-              <CustomFormField name="template" label="扫描模板">
+              <CustomFormField name="template" label="扫描模板" required>
                 <CustomSelect
                   name="template"
                   options={templateList}

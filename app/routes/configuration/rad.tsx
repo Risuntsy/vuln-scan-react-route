@@ -3,7 +3,7 @@ import { getToken } from "#/lib";
 import { getRadConfiguration, saveRadConfiguration } from "#/api/configuration/api";
 import { DASHBOARD_ROUTE } from "#/routes";
 import { Button, Card, CustomFormField, Header, Alert } from "#/components";
-import { Tiptap } from "#/components/custom/tip-tap";
+import { Tiptap } from "#/components/custom/sundry/tip-tap";
 import { useEffect, useState } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
 

@@ -5,7 +5,7 @@ import { getPluginLog, cleanPluginLog } from "#/api";
 import { useEffect } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
 // Assuming LogViewer is correctly placed, adjust import if necessary
-import { LogViewer } from "#/components/custom/log-viewer"; 
+import { LogViewer } from "#/components/custom/sundry/log-viewer"; 
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

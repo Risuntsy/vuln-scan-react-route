@@ -1,11 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Header } from "#/components";
-import { CheckCircle2, Clock, Play, Plus, Server, HardDrive, Cpu, MemoryStick } from "lucide-react";
+import { CheckCircle2, Clock, Play, Plus, Server, HardDrive, Cpu, MemoryStick, Database, Globe, ShieldAlert, AlertTriangle, Link as LinkIcon } from "lucide-react";
 import { SCAN_TASK_CREATE_ROUTE, SCAN_TASKS_ROUTE } from "#/routes";
 import { getNodeData, getOverallAssetStatistics, getTaskData } from "#/api";
 import { getToken } from "#/lib";
 import { Link, useLoaderData, type LoaderFunctionArgs } from "react-router";
-import type { VersionData, NodeData } from "#/api";
-import { AssetStatistics } from "#/components";
+import type { VersionData, NodeData, AssetStatisticsResponse } from "#/api";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const token = await getToken(request);
@@ -21,6 +20,75 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return { assetStats, taskData, nodeData, runningTasks, recentTasks, versionData };
 }
+
+
+interface AssetStatisticsProps {
+  data: AssetStatisticsResponse;
+}
+
+export function AssetStatistics({ data }: AssetStatisticsProps) {
+  const stats = [
+    {
+      title: "总资产数",
+      value: data.assetCount ,
+      icon: Database,
+      color: "text-blue-500",
+      description: "已发现的资产总数"
+    },
+    {
+      title: "子域名",
+      value: data.subdomainCount,
+      icon: Globe,
+      color: "text-green-500",
+      description: "发现的子域名数量"
+    },
+    {
+      title: "敏感信息",
+      value: data.sensitiveCount,
+      icon: ShieldAlert,
+      color: "text-red-500",
+      description: "发现的敏感信息数量"
+    },
+    {
+      title: "URL数量",
+      value: data.urlCount,
+      icon: LinkIcon,
+      color: "text-purple-500",
+      description: "发现的URL数量"
+    },
+    {
+      title: "漏洞数量",
+      value: data.vulnerabilityCount,
+      icon: AlertTriangle,
+      color: "text-orange-500",
+      description: "发现的漏洞总数"
+    }
+  ];
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      {stats.map((stat, index) => {
+        const Icon = stat.icon;
+        return (
+          <Card key={index}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {stat.title}
+              </CardTitle>
+              <Icon className={`h-4 w-4 ${stat.color}`} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <p className="text-xs text-muted-foreground">
+                {stat.description}
+              </p>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+} 
 
 const taskStatusConfig = {
   "1": { icon: Play, iconColor: "text-blue-500", status: "进行中", statusClass: "bg-blue-50 text-blue-700" },
@@ -39,7 +107,7 @@ function RecentTasks({ recentTasks }: { recentTasks: any }) {
     <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
       <CardHeader className="flex justify-between pb-2 border-b">
         <CardTitle className="text-lg font-semibold">最近任务</CardTitle>
-        <Link to={SCAN_TASKS_ROUTE}><Button size="sm" variant="outline" className="text-sm">查看全部</Button></Link>
+        <Link to={SCAN_TASKS_ROUTE}><Button size="sm" className="text-sm">查看全部</Button></Link>
       </CardHeader>
       <CardContent className="pt-2">
         <div className="space-y-2">

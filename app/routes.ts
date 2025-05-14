@@ -27,7 +27,6 @@ export const SCAN_TASK_CREATE_ROUTE = "/task/create";
 export const SCAN_TASK_ROUTE = "/task/:taskId";
 export const SCAN_TASK_STATISTICS_ROUTE = SCAN_TASK_ROUTE + "/statistics";
 export const SCAN_TASK_REPORT_ROUTE = SCAN_TASK_ROUTE + "/report";
-export const SCAN_TASK_EDIT_ROUTE = SCAN_TASK_ROUTE + "/edit";
 export const SCAN_TASK_ASSETS_ROUTE = SCAN_TASK_ROUTE + "/assets";
 export const SCHEDULED_TASKS_ROUTE = "/scheduled-tasks";
 export const SCHEDULED_TASK_ROUTE = "/scheduled-task/:taskId";
@@ -57,7 +56,6 @@ const mainRoutes = [
   route(SCAN_TASKS_ROUTE, "routes/scan-task/list.tsx"),
   route(SCAN_TASK_ROUTE, "routes/scan-task/detail.tsx"),
   route(SCAN_TASK_CREATE_ROUTE, "routes/scan-task/create-and-edit.tsx", { id: "create-scan-task" }),
-  route(SCAN_TASK_EDIT_ROUTE, "routes/scan-task/create-and-edit.tsx", { id: "edit-scan-task" }),
   route(SCAN_TASK_ASSETS_ROUTE, "routes/scan-task/asset/list.tsx"),
   route(SCAN_TASK_STATISTICS_ROUTE, "routes/scan-task/statistic.tsx"),
   route(ASSET_ROUTE, "routes/scan-task/asset/detail.tsx"),

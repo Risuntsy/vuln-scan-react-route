@@ -1,4 +1,4 @@
-export interface TemplateDetail {
+export type TemplateDetail = {
   id?: string;
   name: string;
   Parameters: {
@@ -15,6 +15,7 @@ export interface TemplateDetail {
     URLSecurity: Record<string, string>;
     DirScan: Record<string, string>;
     VulnerabilityScan: Record<string, string>;
+    PassiveScan: Record<string, string>;
   };
   TargetHandler: string[];
   SubdomainScan: string[];
@@ -29,20 +30,29 @@ export interface TemplateDetail {
   URLSecurity: string[];
   DirScan: string[];
   VulnerabilityScan: string[];
+  PassiveScan: string[];
   vullist: string[];
 }
 
 export interface ScheduledTaskData {
-  ID: string;
+  id: string;
   name: string;
-  taskType: string;
+  type: string;
   lastTime: string;
   nextTime: string;
-  state: string;
-  cycle?: number;
-  node?: string[];
-  allNode?: boolean;
-  runner_id?: string;
+  state: boolean;
+  node: string[];
+  cycle: string;
+  allNode: boolean;
+  runner_id: string;
+  project: string[];
+  targetSource: string;
+  day: number;
+  minute: number;
+  hour: number;
+  search: string;
+  cycleType: "daily" | "nhours";
+  scheduledTasks: boolean;
 }
 
 export interface TaskProgessInfo {
@@ -59,6 +69,7 @@ export interface TaskProgessInfo {
   URLSecurity: string[];
   DirScan: string[];
   VulnerabilityScan: string[];
+  PassiveScan: string[];
   All: string[];
   target: string;
   node: string;
@@ -92,6 +103,7 @@ export interface UpdateScheduleRequest {
 }
 
 export interface AddTaskRequest {
+  cycleType: "daily"
   name: string;
   target: string;
   ignore: string;
@@ -117,6 +129,7 @@ export interface TaskData {
   progress: string;
   creatTime: string;
   endTime: string;
+  status: number;
 }
 
 export interface TaskTemplateData {

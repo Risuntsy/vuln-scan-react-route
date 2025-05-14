@@ -31,13 +31,13 @@ export interface ResponseFields {
 
 export type ApiClientConfig =
   | (ApiClientConfigBase & {
-      responseType: "object" | "raw";
-      responseFields?: ResponseFields;
-    })
+    responseType: "object" | "raw";
+    responseFields?: ResponseFields;
+  })
   | (ApiClientConfigBase & {
-      responseType: "data";
-      responseFields: ResponseFields;
-    });
+    responseType: "data";
+    responseFields: ResponseFields;
+  });
 
 export class ApiClient {
   private config: ApiClientConfig;
@@ -95,15 +95,15 @@ export class ApiClient {
       body: processedConfig.data && processedConfig.method !== "GET" ? JSON.stringify(processedConfig.data) : undefined
     };
 
-    if (processedConfig.enableLog) {
-      console.log(`${processedConfig.method} ${url}
-request: ${JSON.stringify(fetchOptions, null, 2)}`);
-    }
+    const requestInfo = `
+${processedConfig.method} ${url}
+request: ${JSON.stringify({ ...fetchOptions, body: processedConfig.data }, null, 2)}
+`;
 
     const startTime = performance.now();
     let rawResponse: Response = await fetch(url, fetchOptions);
 
-    if(processedConfig.enableLog) {
+    if (processedConfig.enableLog) {
       console.log(`${processedConfig.method} ${url} response status: ${rawResponse.status} ${rawResponse.statusText}`);
     }
     const endTime = performance.now();
@@ -167,9 +167,9 @@ request: ${JSON.stringify(fetchOptions, null, 2)}`);
     serializableMetadata.body = data;
     delete (fetchOptions as any)._ogBody;
     fetchOptions.body = processedConfig.data;
-    const logInfo = `response: ${JSON.stringify(serializableMetadata, null, 2)}`;
+    const responseInfo = `response: ${JSON.stringify(serializableMetadata, null, 2)}`;
     if (config.enableLog) {
-      console.log(logInfo);
+      console.log(responseInfo);
     }
 
     // 如果responseType为object，则直接返回data
@@ -200,12 +200,16 @@ request: ${JSON.stringify(fetchOptions, null, 2)}`);
         if (this.config.successCodes?.includes(Number(codeValue))) {
           return dataValue as T;
         } else {
-          console.error(logInfo);
-          throw new Error(
-            `${fetchOptions.method} ${url} Request failed
+          if (!config.enableLog) {
+            console.error(requestInfo);
+            console.error(responseInfo);
+          }
+          console.error(`
+${fetchOptions.method} ${url} failed
 message: ${data[messageField]}
-data: ${JSON.stringify(data)}`
-          );
+responsedata: ${JSON.stringify(data)}
+`);
+          throw new Error(data[messageField]);
         }
       }
 

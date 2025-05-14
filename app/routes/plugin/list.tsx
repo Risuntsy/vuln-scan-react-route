@@ -28,7 +28,7 @@ import {
 import { Plus, Upload, RotateCw, CheckCircle2, Trash2, FileText, Pencil, PackageSearch, Store } from "lucide-react";
 import React, { useEffect } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
-import { EmptyPlaceholder } from "#/components/custom/empty-placeholder";
+import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 
 const PAGE_SIZES = [10, 20, 50];
 

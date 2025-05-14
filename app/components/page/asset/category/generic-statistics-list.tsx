@@ -1,7 +1,7 @@
 import { Badge } from "#/components";
 import { type StatisticsItem } from "#/api";
 import { StatisticsCard } from "./statistics-card";
-import { EmptyPlaceholder } from "#/components/custom/empty-placeholder";
+import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 import { Link } from "react-router";
 
 export interface GenericStatisticsListProps {

@@ -1,27 +1,5 @@
-import {
-  Link,
-  redirect,
-  useLoaderData,
-  type LoaderFunctionArgs,
-  useSearchParams,
-  type SetURLSearchParams
-} from "react-router";
-import {
-  Globe,
-  Network,
-  Calendar,
-  Clock,
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-  Trash2,
-  RefreshCw,
-  CheckCircle,
-  XCircle,
-  Loader,
-  BarChart,
-  List
-} from "lucide-react";
+import { Link, redirect, useLoaderData, type LoaderFunctionArgs, useSearchParams } from "react-router";
+import { Globe, Network, Calendar, Clock, FileText, CheckCircle, XCircle, Loader, BarChart, List } from "lucide-react";
 import { cn } from "#/lib";
 
 import { getToken, r, getSearchParams } from "#/lib";
@@ -41,11 +19,11 @@ import {
   TableHeader,
   TableRow
 } from "#/components";
-import { ASSET_ROUTE, SCAN_TASK_ASSETS_ROUTE, SCAN_TASK_STATISTICS_ROUTE } from "#/routes";
+import { SCAN_TASK_ASSETS_ROUTE, SCAN_TASK_STATISTICS_ROUTE } from "#/routes";
 
 import { PortServiceList, ServiceTypeList, StatisticsList, ServiceIconGrid } from "#/components";
 import { CustomPagination } from "#/components";
-import { EmptyPlaceholder } from "#/components/custom/empty-placeholder";
+import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 
 const overviewItems = [
   {
@@ -91,17 +69,20 @@ const progressItems: { key: keyof TaskProgessInfo; label: string }[] = [
   { key: "WebCrawler", label: "Web爬虫" },
   { key: "URLSecurity", label: "URL安全" },
   { key: "DirScan", label: "目录扫描" },
-  { key: "VulnerabilityScan", label: "漏洞扫描" }
+  { key: "VulnerabilityScan", label: "漏洞扫描" },
+  { key: "PassiveScan", label: "被动扫描" }
 ] as const;
 
 function getProgressStatus(times: string[]) {
+  if (!times) {
+    return "-";
+  }
   times = times.filter(time => time != "");
   if (times.length === 0) return "未开始";
   if (times.length === 2) return "已完成";
   return "进行中";
 }
 
-// Helper to get icon and style for progress status
 function getProgressBadge(status: string): React.ReactNode {
   let IconComponent;
   let variant: "default" | "secondary" | "destructive" | "outline" = "outline";
@@ -144,14 +125,14 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const { pageIndex, pageSize } = getSearchParams(request, { pageIndex: 1, pageSize: 20 });
 
   try {
-    const [taskDetail, assetStatistics, taskProgress] = await Promise.all([
-      getTaskDetail({ id: taskId, token }),
+    const taskDetail = await getTaskDetail({ id: taskId, token });
+    const [assetStatistics, taskProgress] = await Promise.all([
       getAssetStatistics({
         search: "",
         pageIndex,
         pageSize,
         filter: {
-          taskId
+          task: [taskDetail.name]
         },
         token
       }),

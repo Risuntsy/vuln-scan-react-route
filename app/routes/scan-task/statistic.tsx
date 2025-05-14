@@ -20,7 +20,7 @@ import { getAssetStatistics, getTaskDetail } from "#/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, ScanTaskHeader, Alert, Button } from "#/components";
 import { SCAN_TASK_ASSETS_ROUTE, SCAN_TASK_ROUTE } from "#/routes";
 import { PieChartIcon, BarChartIcon, LineChartIcon } from "lucide-react";
-import { EmptyPlaceholder } from "#/components/custom/empty-placeholder";
+import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d", "#ffc658"];
 const RISK_COLORS: { [key: string]: string } = {

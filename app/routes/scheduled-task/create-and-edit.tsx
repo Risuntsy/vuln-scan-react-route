@@ -30,7 +30,6 @@ import {
   MultipleSelector
 } from "#/components";
 
-// Zod schema for validation
 const editSchema = z.object({
   allNode: z.boolean().default(true),
   node: z.array(z.string()),
@@ -38,7 +37,6 @@ const editSchema = z.object({
   state: z.boolean().default(true)
 });
 
-// Loader function to fetch task data and node list
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const token = await getToken(request);
   const taskId = params.taskId;
@@ -50,7 +48,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const [nodeData, taskData] = await Promise.all([
       getNodeDataOnline({ token }),
-      getScheduleTaskDetail({ token, id: taskId }) // Assumes this API function exists
+      getScheduleTaskDetail({ token, id: taskId })
     ]);
 
     return {
@@ -59,13 +57,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       nodeList: nodeData.list.map((nodeName: string) => ({ label: nodeName, value: nodeName }))
     };
   } catch (error) {
-    // Handle cases like task not found
     console.error("Failed to load task data:", error);
     throw new Response("Failed to load task data", { status: 500 });
   }
 }
 
-// Action function to handle form submission
 export async function action({ request }: ActionFunctionArgs) {
   const [token, rawData] = await Promise.all([getToken(request), request.json()]);
 
@@ -77,8 +73,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    // Call the update API - assumes a generic update function exists
-    // Adapt if using a specific function like updateScheduledTaskPageMonit
     await updateScheduledTaskPageMonit({
       token,
       node: data.node,
@@ -91,11 +85,9 @@ export async function action({ request }: ActionFunctionArgs) {
     return { success: false, message: error?.message || "更新定时任务失败。" };
   }
 
-  // Redirect to the list page on success
   return redirect(SCHEDULED_TASKS_ROUTE);
 }
 
-// Edit Page Component
 export default function ScheduledTaskEditPage() {
   const navigate = useNavigate();
   const fetcher = useFetcher<typeof action>();
@@ -148,7 +140,6 @@ export default function ScheduledTaskEditPage() {
                 <AlertDescription>{message}</AlertDescription>
               </Alert>
             )}
-            {/* Use fetcher.Form for submission */}
             <fetcher.Form
               method="post"
               className="space-y-6"
@@ -158,8 +149,6 @@ export default function ScheduledTaskEditPage() {
                 fetcher.submit(formData, { method: "post", encType: "application/json" });
               }}
             >
-              {/* Hidden input for taskId might not be needed if using fetcher */}
-              {/* <input type="hidden" {...form.register("taskId")} /> */}
 
               <CustomFormField name="cycle" label="监控周期 (小时)" required>
                 <Input

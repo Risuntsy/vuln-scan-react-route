@@ -1,37 +1,33 @@
-import { Button, errorToast, successToast, Tiptap, Toaster } from "#/components";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from "#/components";
-import { useEffect, useState } from "react";
-import { Form, useActionData, useSubmit, type ActionFunctionArgs, useFetcher } from "react-router";
+import { AlertAction, Button, CustomTooltip, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, errorToast, successToast, Toaster } from "#/components";
+import { MoreHorizontal } from "lucide-react";
+
+import { useEffect } from "react";
+import { type ActionFunctionArgs, type LoaderFunctionArgs, useFetcher, useLoaderData } from "react-router";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  return "init data";
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   // const formData = await request.formData();
+
+  const data = await request.json();
   return {
     success: true,
-    message: "ok",
-    data: await request.json()
+    message: data?.message || "ok",
+    data
   };
 }
 
 export default function TempPage() {
   const fetcher = useFetcher();
-
-  const [content, setContent] = useState(``);
+  const loaderData = useLoaderData<typeof loader>();
 
   useEffect(() => {
     if (fetcher.data) {
       console.log(fetcher.data);
       if (fetcher.data?.success) {
-        successToast("操作成功");
+        successToast(fetcher.data?.message || "操作成功");
       } else {
         errorToast(fetcher.data?.message || "操作失败");
       }
@@ -39,77 +35,43 @@ export default function TempPage() {
   }, [fetcher.data]);
 
   return (
-    <div className="h-screen w-screen">
-      <div>
-        <Tiptap content={content} onChange={setContent} />
-      </div>
-
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="outline">Show Dialog</Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account and remove your data from our
-              servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                await fetcher.submit(
-                  {
-                    action: "test"
-                  },
-                  {
-                    method: "post",
-                    encType: "application/json"
-                  }
+    <div className="h-screen w-screen flex items-center justify-center">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-7 w-7">
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>
+            <AlertAction
+              itemContent={
+                <span className="flex items-center">
+                  <span>test button</span>
+                </span>
+              }
+              onAction={() => {
+                fetcher.submit(
+                  { _action: "test", message: "WTF" + Math.random() },
+                  { method: "post", encType: "application/json" }
                 );
               }}
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            />
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <span>{loaderData}</span>
+
+
+      <CustomTooltip description="test tooltip">
+        <Button variant="ghost" size="icon" className="h-7 w-7">
+          <MoreHorizontal className="w-4 h-4" />
+        </Button>
+      </CustomTooltip>
 
       <Toaster />
     </div>
   );
 }
 
-async function formAction({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  return Object.fromEntries(formData);
-}
-
-function TempForm() {
-  const result = useActionData<typeof formAction>();
-  return (
-    <div className="h-screen w-screen">
-      <div className="flex flex-col h-full">
-        <div>{JSON.stringify(result)}</div>
-        <form method="post" className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="options" className="text-sm font-medium">
-              Select Options
-            </label>
-            <select id="options" name="options" multiple className="w-full p-2 border rounded-md" size={4}>
-              <option value="option1">Option 1</option>
-              <option value="option2">Option 2</option>
-              <option value="option3">Option 3</option>
-              <option value="option4">Option 4</option>
-            </select>
-          </div>
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            Submit
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}

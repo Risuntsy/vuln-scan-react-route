@@ -19,7 +19,7 @@ import { RotateCw, CheckCircle2, PackageSearch } from "lucide-react";
 import React, { useEffect } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
 import type { LoaderFunctionArgs } from "react-router";
-import { EmptyPlaceholder } from "#/components/custom/empty-placeholder";
+import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const token = await getToken(request);

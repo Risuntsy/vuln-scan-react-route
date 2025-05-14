@@ -32,7 +32,7 @@ import {
   AlertDescription,
   Badge
 } from "#/components";
-import { Tiptap } from "#/components/custom/tip-tap";
+import { Tiptap } from "#/components/custom/sundry/tip-tap";
 
 // Form schema for POC creation/editing
 const formSchema = z.object({

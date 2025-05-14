@@ -2,7 +2,7 @@ import { NOT_FOUND_ROUTE, DASHBOARD_ROUTE, NODES_ROUTE } from "#/routes";
 import { redirect, useLoaderData, useParams } from "react-router";
 import { getToken } from "#/lib/cookie";
 import { getNodeLog } from "#/api";
-import { LogViewer } from "#/components/custom/log-viewer";
+import { LogViewer } from "#/components/custom/sundry/log-viewer";
 import type { LoaderFunctionArgs } from "react-router";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

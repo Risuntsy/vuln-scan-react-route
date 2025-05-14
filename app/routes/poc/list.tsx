@@ -29,7 +29,7 @@ import {
 import { Plus, Upload, Trash2, Pencil, FileSearch, ShieldAlert } from "lucide-react";
 import React, { useEffect } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
-import { EmptyPlaceholder } from "#/components/custom/empty-placeholder";
+import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 import type { PocData } from "#/api/poc/entity";
 
 const PAGE_SIZES = [10, 20, 50];

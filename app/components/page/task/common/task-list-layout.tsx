@@ -12,17 +12,15 @@ import {
   Header,
   CustomPagination
 } from "#/components";
-import { Download, Search, Plus } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 
-// 页面大小选项
 const PAGE_SIZES = [10, 20, 50, 100];
 
-// 任务列表布局组件的props类型
 export interface TaskListLayoutProps {
   title: string;
   subtitle?: string;
   searchPlaceholder?: string;
-  routes: Array<{ name: string; href?: string }>; 
+  routes: Array<{ name: string; href?: string }>;
   createRoute?: string;
   createButtonText?: string;
   searchValue: string;
@@ -31,7 +29,6 @@ export interface TaskListLayoutProps {
   pageIndex: number;
   total: number;
   children: React.ReactNode;
-  showDownload?: boolean;
 }
 
 // 任务列表过滤栏组件
@@ -40,13 +37,15 @@ export function TaskListFilterBar({
   searchPlaceholder = "搜索...",
   setSearchParams,
   pageSize,
-  showDownload = true
+  total,
+  pageIndex
 }: {
   searchValue: string;
   searchPlaceholder?: string;
   setSearchParams: SetURLSearchParams;
   pageSize: number;
-  showDownload?: boolean;
+  total: number;
+  pageIndex: number;
 }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 border-b pb-4">
@@ -75,6 +74,7 @@ export function TaskListFilterBar({
       <div className="flex flex-wrap items-center gap-2 ml-auto">
         {/* 页面大小选择器 */}
         <div className="flex items-center gap-1">
+          <span className="text-sm text-muted-foreground">每页显示:</span>
           <Select
             defaultValue={pageSize.toString()}
             onValueChange={value =>
@@ -96,14 +96,9 @@ export function TaskListFilterBar({
               ))}
             </SelectContent>
           </Select>
-          
-          {/* 下载按钮 */}
-          {showDownload && (
-            <Button variant="outline" size="icon" className="ml-1">
-              <Download className="w-4 h-4" />
-            </Button>
-          )}
         </div>
+
+        <CustomPagination total={total} pageIndex={pageIndex} pageSize={pageSize} setSearchParams={setSearchParams} />
       </div>
     </div>
   );
@@ -122,8 +117,7 @@ export function TaskListLayout({
   pageSize,
   pageIndex,
   total,
-  children,
-  showDownload
+  children
 }: TaskListLayoutProps) {
   return (
     <div className="space-y-2 max-w-screen h-full p-2">
@@ -152,27 +146,22 @@ export function TaskListLayout({
             searchPlaceholder={searchPlaceholder}
             setSearchParams={setSearchParams}
             pageSize={pageSize}
-            showDownload={showDownload}
+            total={total}
+            pageIndex={pageIndex}
           />
 
           {/* 任务列表内容 */}
           {children}
 
           {/* 分页 */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sticky bottom-0 bg-background py-3 border-t">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sticky bottom-0 bg-background py-3 border-t">
             <div className="text-sm text-muted-foreground">
-              显示 {total > 0 ? (pageIndex - 1) * pageSize + 1 : 0}-{Math.min(pageIndex * pageSize, total)}{" "}
-              共 {total} 条记录
+              显示 {total > 0 ? (pageIndex - 1) * pageSize + 1 : 0}-{Math.min(pageIndex * pageSize, total)} 共 {total}{" "}
+              条记录
             </div>
-            <CustomPagination
-              total={total}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              setSearchParams={setSearchParams}
-            />
           </div>
         </CardContent>
       </Card>
     </div>
   );
-} 
+}

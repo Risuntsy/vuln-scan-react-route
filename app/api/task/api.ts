@@ -32,12 +32,12 @@ export async function getTaskData({
   );
 }
 
-export async function stopTask({ id, token }: BaseRequest & { id: string }) {
-  return apiClient.post<ListResponse<TaskData>>("/task/stop", { id }, { headers: { Authorization: token } });
+export async function stopTask({ token, ...data }: BaseRequest & { ids: Array<string>, delA?: boolean }) {
+  return apiClient.post<ListResponse<TaskData>>("/task/stop", data, { headers: { Authorization: token }});
 }
 
-export async function startTask({ id, token }: BaseRequest & { id: string }) {
-  return apiClient.post<ListResponse<TaskData>>("/task/start", { id }, { headers: { Authorization: token } });
+export async function startTask({ token, ...data }: BaseRequest & { id: string }) {
+  return apiClient.post<ListResponse<TaskData>>("/task/start", data, { headers: { Authorization: token }});
 }
 
 export async function addTask({ token, ...data }: BaseRequest & AddTaskRequest) {
@@ -65,7 +65,7 @@ export async function deleteTask({ token, ...data }: BaseRequest & { ids: string
 }
 
 export async function retestTask({ id, token }: BaseRequest & { id: string }) {
-  return apiClient.post<CommonMessage>("/task/retest", { id }, { headers: { Authorization: token } });
+  return apiClient.post<CommonMessage>("/task/retest", { id }, { headers: { Authorization: token } , enableLog: true});
 }
 
 export async function getTaskProgress({

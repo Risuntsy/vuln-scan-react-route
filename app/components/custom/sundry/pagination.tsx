@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { SetURLSearchParams, useSearchParams } from "react-router";
-import { Button } from "../ui/button";
+import { Button } from "#/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui";
+import { Input } from "#/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "#/components/ui/select";
 
 export function CustomPagination({
   total,

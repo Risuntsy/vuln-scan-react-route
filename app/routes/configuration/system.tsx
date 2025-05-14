@@ -23,7 +23,7 @@ import {
   TabsList,
   TabsTrigger
 } from "#/components";
-import { Tiptap } from "#/components/custom/tip-tap";
+import { Tiptap } from "#/components/custom/sundry/tip-tap";
 import { useEffect, useState } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
 

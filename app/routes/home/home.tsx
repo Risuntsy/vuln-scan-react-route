@@ -1,30 +1,30 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components";
-import { ArrowRight, Shield, Zap, Search, Network, Code, Bug } from "lucide-react";
+import { ArrowRight, Network, Code, Bug } from "lucide-react";
 import { ABOUT_ROUTE, LOGIN_ROUTE } from "#/routes";
 import { Link } from "react-router";
 
 export default function Index() {
   return (
-    <div className="h-screen flex flex-col justify-center items-center p-8 bg-slate-50">
-      <div className="max-w-5xl w-full text-center mb-12">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">ScopeSentry 分布式安全扫描系统</h1>
-        <p className="text-xl text-muted-foreground mb-8">基于分布式架构的资产测绘与漏洞检测平台</p>
-        <div className="flex justify-center gap-4">
+    <div className="min-h-screen flex flex-col justify-center items-center p-4 sm:p-8 bg-slate-50">
+      <div className="max-w-5xl w-full text-center mb-8 sm:mb-12">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">ScopeSentry 分布式安全扫描系统</h1>
+        <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8">基于分布式架构的资产测绘与漏洞检测平台</p>
+        <div className="flex flex-wrap justify-center gap-4">
           <Link to={LOGIN_ROUTE}>
-            <Button size="lg">
+            <Button size="lg" className="w-full sm:w-auto">
               立即登录
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
           <Link to={ABOUT_ROUTE}>
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto">
               了解更多
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-5xl">
         <Card>
           <CardHeader>
             <Network className="h-8 w-8 text-primary mb-2" />

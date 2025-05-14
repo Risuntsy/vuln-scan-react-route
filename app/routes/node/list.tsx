@@ -30,7 +30,7 @@ import React, { useEffect } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
 import type { LoaderFunctionArgs } from "react-router";
 import { cn } from "#/lib";
-import { EmptyPlaceholder } from "#/components/custom/empty-placeholder";
+import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 
 // Helper function to format memory (string to GB)
 function formatMemory(memStr: string | undefined): string {

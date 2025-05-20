@@ -1,8 +1,7 @@
 import { useLoaderData, Link, useFetcher } from "react-router";
 import { getToken, r } from "#/lib";
 import { getNodeData, deleteNode } from "#/api/node/api";
-import type { NodeData } from "#/api/node/entity";
-import { DASHBOARD_ROUTE, NODES_ROUTE, NODE_PLUGINS_ROUTE, NODE_LOG_ROUTE } from "#/routes";
+import { DASHBOARD_ROUTE, NODE_PLUGINS_ROUTE, NODE_LOG_ROUTE } from "#/routes";
 import {
   Button,
   Card,
@@ -26,13 +25,11 @@ import {
   Badge
 } from "#/components";
 import { Plug, FileText, Trash2, Server } from "lucide-react";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
 import type { LoaderFunctionArgs } from "react-router";
-import { cn } from "#/lib";
 import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 
-// Helper function to format memory (string to GB)
 function formatMemory(memStr: string | undefined): string {
   if (!memStr) return "N/A";
   const memBytes = parseFloat(memStr);
@@ -40,7 +37,6 @@ function formatMemory(memStr: string | undefined): string {
   return (memBytes / 1024).toFixed(2) + " GB";
 }
 
-// Helper function to get node state text
 function getNodeStateText(state: string): string {
   switch (state) {
     case '1':

@@ -49,7 +49,12 @@ import {
   Label,
   Switch,
   CustomFormField,
-  DialogDescription
+  DialogDescription,
+  SelectTrigger,
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectValue
 } from "#/components";
 import { Plus, Pencil, Trash2, Power } from "lucide-react";
 import React, { useState, useEffect } from "react";
@@ -205,12 +210,17 @@ export default function SensitiveRuleListPage() {
       return;
     }
     await fetcher.submit({ ...formData, _action: "save" }, { method: "post", encType: "application/json" });
-    if (fetcher.data?.success) {
-      successToast(fetcher.data?.message || "成功");
-    } else {
-      errorToast(fetcher.data?.message || "失败");
-    }
   };
+
+  useEffect(() => {
+    if (fetcher.data) {
+      if (fetcher.data?.success) {
+        successToast(fetcher.data?.message || "操作成功");
+      } else {
+        errorToast(fetcher.data?.message || "操作失败");
+      }
+    }
+  }, [fetcher.data]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -228,8 +238,6 @@ export default function SensitiveRuleListPage() {
       { id, state: !currentState, _action: "toggleState" },
       { method: "post", encType: "application/json" }
     );
-    console.log(JSON.stringify(fetcher, null, 2));
-    successToast(fetcher.data?.message || "成功");
   };
 
   if (!success && sensitiveRules.length === 0) {
@@ -269,7 +277,22 @@ export default function SensitiveRuleListPage() {
                     <Input name="regular" value={formData.regular} onChange={handleInputChange} required />
                   </CustomFormField>
                   <CustomFormField name="color" label="颜色">
-                    <Input type="color" name="color" value={formData.color} onChange={handleInputChange} />
+                    <Select name="color" value={formData.color} onValueChange={(e)=>{
+                      setFormData(prev => ({ ...prev, color: e }));
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择颜色" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="green">绿色</SelectItem>
+                        <SelectItem value="red">红色</SelectItem>
+                        <SelectItem value="cyan">青色</SelectItem>
+                        <SelectItem value="yellow">黄色</SelectItem>
+                        <SelectItem value="orange">橙色</SelectItem>
+                        <SelectItem value="gray">灰色</SelectItem>
+                        <SelectItem value="pink">粉色</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </CustomFormField>
                   <CustomFormField name="state" label="状态" className="items-center">
                     <Switch id="state" name="state" checked={formData.state} onCheckedChange={handleSwitchChange} />

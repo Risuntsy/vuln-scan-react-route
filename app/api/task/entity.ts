@@ -32,7 +32,7 @@ export type TemplateDetail = {
   VulnerabilityScan: string[];
   PassiveScan: string[];
   vullist: string[];
-}
+};
 
 export interface ScheduledTaskData {
   id: string;
@@ -88,8 +88,31 @@ export interface TaskDetail {
   state: boolean;
 }
 
+export interface AddScheduledTaskRequest {
+  name: string;
+  target: string;
+  ignore: string;
+  node: string[];
+  allNode: boolean;
+  duplicates: string;
+  scheduledTasks: boolean;
+  hour: number;
+  template: string;
+  targetTp: string;
+  search: string;
+  filter: Record<string, any>;
+  targetNumber: number;
+  targetIds: string[];
+  project: string[];
+  targetSource: string;
+  day: number;
+  minute: number;
+  week: number;
+  bindProject: string | null;
+  cycleType: string;
+}
+
 export interface UpdateScheduleRequest {
-  state: boolean;
   id: string;
   name: string;
   target: string;
@@ -100,10 +123,22 @@ export interface UpdateScheduleRequest {
   scheduledTasks: boolean;
   hour: number;
   template: string;
+  targetTp: string;
+  search: string;
+  filter: Record<string, any>;
+  targetNumber: number;
+  targetIds: string[];
+  project: string[];
+  targetSource: string;
+  day: number;
+  minute: number;
+  week: number;
+  bindProject: string | null;
+  cycleType: string;
 }
 
 export interface AddTaskRequest {
-  cycleType: "daily"
+  cycleType: "daily";
   name: string;
   target: string;
   ignore: string;

@@ -40,11 +40,11 @@ const formSchema = z.object({
   target: z.string().min(1, "目标不能为空"),
   ignore: z.string().default(""),
   allNode: z.boolean().default(false),
-  node: z.array(z.string()),
+  node: z.array(z.string()).min(1, "节点不能为空"),
   scheduledTasks: z.boolean().default(false),
   duplicates: z.enum(["None", "subdomain"]).default("None"),
   cycleType: z.enum(["daily"]).default("daily"),
-  template: z.string(),
+  template: z.string().min(1, "扫描模板不能为空"),
   hour: z.number().max(23).default(23),
   tp: z.string().default("scan"),
   targetTp: z.string().default("select"),
@@ -78,7 +78,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const { data, error: parseError } = formSchema.safeParse(rawData);
 
   if (parseError) {
-    return { success: false, message: parseError.message };
+    return { success: false, message: parseError.errors.map(error => error.message).join("\n") };
   }
 
   try {
@@ -140,10 +140,10 @@ export default function CreateScanTaskPage() {
             <CardDescription>配置扫描任务的基本信息和目标</CardDescription>
           </CardHeader>
           <CardContent>
-            {message && (
+            {message && !success && (
               <Alert variant="destructive" className="mb-4 sticky top-0">
                 <AlertCircle className="h-4 w-4 mr-2" />
-                <AlertDescription>{message}</AlertDescription>
+                <AlertDescription className="whitespace-pre-wrap">{message}</AlertDescription>
               </Alert>
             )}
             <fetcher.Form

@@ -8,7 +8,8 @@ import type {
   TaskProgessInfo,
   ScheduledTaskData,
   TemplateDetail,
-  TaskTemplateData
+  TaskTemplateData,
+  AddScheduledTaskRequest
 } from "./entity";
 
 type BaseRequest = {
@@ -28,26 +29,20 @@ export async function getTaskData({
   return apiClient.post<ListResponse<TaskData>>(
     "/task/data",
     { search, pageIndex, pageSize },
-    { headers: { Authorization: token }}
+    { headers: { Authorization: token } }
   );
 }
 
-export async function stopTask({ token, ...data }: BaseRequest & { ids: Array<string>, delA?: boolean }) {
-  return apiClient.post<ListResponse<TaskData>>("/task/stop", data, { headers: { Authorization: token }});
+export async function stopTask({ token, ...data }: BaseRequest & { ids: Array<string>; delA?: boolean }) {
+  return apiClient.post<ListResponse<TaskData>>("/task/stop", data, { headers: { Authorization: token } });
 }
 
 export async function startTask({ token, ...data }: BaseRequest & { id: string }) {
-  return apiClient.post<ListResponse<TaskData>>("/task/start", data, { headers: { Authorization: token }});
+  return apiClient.post<ListResponse<TaskData>>("/task/start", data, { headers: { Authorization: token } });
 }
 
 export async function addTask({ token, ...data }: BaseRequest & AddTaskRequest) {
   return apiClient.post<CommonMessage>("/task/add", data, {
-    headers: { Authorization: token }
-  });
-}
-
-export async function updateScheduleTask({ token, ...data }: BaseRequest & UpdateScheduleRequest) {
-  return apiClient.post<CommonMessage>("/task/scheduled/update", data, {
     headers: { Authorization: token }
   });
 }
@@ -64,8 +59,8 @@ export async function deleteTask({ token, ...data }: BaseRequest & { ids: string
   return apiClient.post<CommonMessage>("/task/delete", data, { headers: { Authorization: token } });
 }
 
-export async function retestTask({ id, token }: BaseRequest & { id: string }) {
-  return apiClient.post<CommonMessage>("/task/retest", { id }, { headers: { Authorization: token } , enableLog: true});
+export async function retestTask({ token, ...data }: BaseRequest & { id: string }) {
+  return apiClient.post<CommonMessage>("/task/retest", data, { headers: { Authorization: token }, enableLog: true });
 }
 
 export async function getTaskProgress({
@@ -124,22 +119,15 @@ export async function deleteScheduledTaskPageMonit({ ids, token }: BaseRequest &
 }
 
 export async function updateScheduledTaskPageMonit({
-  hour,
-  node,
-  allNode,
-  state,
-  token
+  token,
+  ...data
 }: BaseRequest & {
+  id: string;
   hour: number;
   node: string[];
   allNode: boolean;
-  state: boolean;
 }) {
-  return apiClient.post<CommonMessage>(
-    "/task/scheduled/pagemonit/update",
-    { hour, node, allNode, state },
-    { headers: { Authorization: token } }
-  );
+  return apiClient.post<CommonMessage>("/task/scheduled/pagemonit/update", data, { headers: { Authorization: token } });
 }
 
 export async function addScheduledTaskPageMonit({ url, token }: BaseRequest & { url: string }) {
@@ -164,19 +152,25 @@ export async function getTemplateData({
 }
 
 export async function getTemplateDetail({ id, token }: BaseRequest & { id: string }) {
-  return apiClient.post<TemplateDetail>(
-    "/task/template/detail",
-    { id },
-    { headers: { Authorization: token }}
-  );
+  return apiClient.post<TemplateDetail>("/task/template/detail", { id }, { headers: { Authorization: token } });
 }
 
 export async function saveTemplateDetail({ token, ...data }: BaseRequest & { result: TemplateDetail; id?: string }) {
   return apiClient.post<TemplateDetail>("/task/template/save", data, {
-    headers: { Authorization: token },
+    headers: { Authorization: token }
   });
 }
 
 export async function deleteTemplateDetail({ ids, token }: BaseRequest & { ids: string[] }) {
   return apiClient.post<CommonMessage>("/task/template/delete", { ids }, { headers: { Authorization: token } });
+}
+
+export async function addScheduledTask({ token, ...data }: BaseRequest & AddScheduledTaskRequest) {
+  return apiClient.post<CommonMessage>("/task/scheduled/add", data, { headers: { Authorization: token } });
+}
+
+export async function updateScheduleTask({ token, ...data }: BaseRequest & UpdateScheduleRequest) {
+  return apiClient.post<CommonMessage>("/task/scheduled/update", data, {
+    headers: { Authorization: token }
+  });
 }

@@ -14,8 +14,8 @@ import { useForm } from "react-hook-form";
 import { AlertCircle, ArrowLeft, Save, Plus } from "lucide-react";
 import { useState } from "react";
 
-import { getToken, r } from "#/lib";
-import { getPocDetail, getPocContent, addPocData, updatePocData } from "#/api/poc/api";
+import { getToken, } from "#/lib";
+import { getPocDetail, addPocData, updatePocData } from "#/api/poc/api";
 import { POCS_ROUTE, DASHBOARD_ROUTE } from "#/routes";
 import {
   Button,

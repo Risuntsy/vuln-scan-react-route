@@ -4,10 +4,7 @@ import type { Route } from "../+types/root";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const token = await getToken(request);
-  if (!token) {
-    return redirect("/login");
-  }
-  return null;
+  if (!token) return redirect("/login");
 }
 
 export default function AuthLayout() {

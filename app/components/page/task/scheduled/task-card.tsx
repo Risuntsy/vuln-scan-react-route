@@ -2,22 +2,16 @@ import { Clock, Pencil, Trash } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent } from "#/components/ui/card";
 import { Button } from "#/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from "#/components/ui/alert-dialog";
 import { type ScheduledTaskData } from "#/api";
+import { CustomTooltip } from "#/components/custom/sundry/tooltip";
+import { AlertAction } from "#/components/custom";
+import type { FetcherWithComponents } from "react-router";
+
 interface TaskCardProps {
   task: ScheduledTaskData;
   onEdit: (data: ScheduledTaskData) => void;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
+  fetcher: FetcherWithComponents<any>;
 }
 
 function formatTime(time: string): string {
@@ -26,7 +20,7 @@ function formatTime(time: string): string {
 }
 
 export function TaskCard(props: TaskCardProps) {
-  const { task, onEdit, onDelete } = props;
+  const { task, onEdit, fetcher } = props;
   const { id, name, type, lastTime, nextTime, state, cycle } = task;
   return (
     <Card className="hover:bg-accent/5 transition-colors">
@@ -48,20 +42,34 @@ export function TaskCard(props: TaskCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 h-8 w-8 p-0"
-              onClick={() => onEdit(task)}
-            >
-              <Pencil className="w-4 h-4" />
-              <span className="sr-only">编辑</span>
-            </Button>
+          {id !== "page_monitoring" && (
+            <div className="flex items-center gap-1 shrink-0 w-16">
+              <CustomTooltip description="编辑">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 h-8 w-8 p-0"
+                  onClick={() => onEdit(task)}
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span className="sr-only">编辑</span>
+                </Button>
+              </CustomTooltip>
 
-            {id !== "page_monitoring" && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
+              <CustomTooltip description="删除">
+                <AlertAction
+                  confirmTitle="确认删除"
+                  confirmDescription={`您确定要删除定时任务 "${name}" 吗？此操作无法撤销。`}
+                  confirmText="删除"
+                  cancelText="取消"
+                  isDestructive={true}
+                  onConfirm={async () =>
+                    await fetcher.submit(
+                      { _action: "delete", ids: [id] },
+                      { method: "POST", encType: "application/json" }
+                    )
+                  }
+                >
                   <Button
                     variant="ghost"
                     size="sm"
@@ -70,22 +78,10 @@ export function TaskCard(props: TaskCardProps) {
                     <Trash className="w-4 h-4" />
                     <span className="sr-only">删除</span>
                   </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>确认删除</AlertDialogTitle>
-                    <AlertDialogDescription>您确定要删除定时任务 "{name}" 吗？此操作无法撤销。</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>取消</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onDelete(id)} className="bg-red-500 hover:bg-red-600">
-                      删除
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </div>
+                </AlertAction>
+              </CustomTooltip>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -1,7 +1,7 @@
 import { useLoaderData, useSearchParams, type LoaderFunctionArgs, Link, useFetcher, Form } from "react-router";
 import { getToken, getSearchParams, r } from "#/lib";
 import { getPocData, deletePocData } from "#/api/poc/api";
-import { DASHBOARD_ROUTE, POC_CREATE_ROUTE, POC_EDIT_ROUTE, POCS_ROUTE } from "#/routes";
+import { DASHBOARD_ROUTE, POC_CREATE_ROUTE, POC_EDIT_ROUTE } from "#/routes";
 import {
   Button,
   Card,
@@ -26,21 +26,19 @@ import {
   Input,
   Badge
 } from "#/components";
-import { Plus, Upload, Trash2, Pencil, FileSearch, ShieldAlert } from "lucide-react";
-import React, { useEffect } from "react";
+import { Plus, Upload, Trash2, Pencil, FileSearch } from "lucide-react";
+import { useEffect } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
 import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 import type { PocData } from "#/api/poc/entity";
 
 const PAGE_SIZES = [10, 20, 50];
 
-// Risk level badge styles
 const RISK_LEVEL_STYLES: Record<string, { bg: string; text: string }> = {
   高危: { bg: "bg-red-100", text: "text-red-700" },
   中危: { bg: "bg-orange-100", text: "text-orange-700" },
   低危: { bg: "bg-yellow-100", text: "text-yellow-700" },
   信息: { bg: "bg-blue-100", text: "text-blue-700" },
-  // Default style for unknown levels
   default: { bg: "bg-gray-100", text: "text-gray-700" }
 };
 
@@ -57,9 +55,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       pageIndex,
       pageSize,
       search,
-      filter: {}, // Empty filter object, could be expanded later
+      filter: {},
       token
     });
+
+    console.log(list);
 
     return {
       success: true,

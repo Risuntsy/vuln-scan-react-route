@@ -53,12 +53,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
-import {
-  DASHBOARD_ROUTE,
-  SCAN_TASK_CREATE_ROUTE,
-  SCAN_TASK_REPORT_ROUTE,
-  SCAN_TASK_ROUTE
-} from "#/routes";
+import { DASHBOARD_ROUTE, SCAN_TASK_CREATE_ROUTE, SCAN_TASK_REPORT_ROUTE, SCAN_TASK_ROUTE } from "#/routes";
 import { cn, getSearchParams, getToken, r } from "#/lib";
 import { useEffect, useState } from "react";
 
@@ -148,12 +143,12 @@ const TASK_ACTIONS: TaskAction[] = [
     title: "查看详情",
     route: (id: string) => r(SCAN_TASK_ROUTE, { variables: { taskId: id } })
   },
-  {
-    key: "report",
-    icon: FileText,
-    title: "导出报告",
-    route: (id: string) => r(SCAN_TASK_REPORT_ROUTE, { variables: { taskId: id } })
-  },
+  // {
+  //   key: "report",
+  //   icon: FileText,
+  //   title: "导出报告",
+  //   route: (id: string) => r(SCAN_TASK_REPORT_ROUTE, { variables: { taskId: id } })
+  // },
   {
     key: "delete",
     icon: Trash2,
@@ -340,10 +335,17 @@ export default function ScanTasksPage() {
                 const statusInfo = STATUS_BADGES[statusKey];
 
                 const handleAction = async (action: string) => {
-                  await fetcher.submit(
-                    { _action: action, ids: [task.id] },
-                    { method: "post", encType: "application/json" }
-                  );
+                  if (action === "rescan") {
+                    return await fetcher.submit(
+                      { _action: action, id: task.id },
+                      { method: "post", encType: "application/json" }
+                    );
+                  } else {
+                    return await fetcher.submit(
+                      { _action: action, ids: [task.id] },
+                      { method: "post", encType: "application/json" }
+                    );
+                  }
                 };
 
                 return (
@@ -370,7 +372,7 @@ export default function ScanTasksPage() {
                         >
                           {task.name}
                         </Link>
-                        
+
                         {/* 大屏幕显示操作按钮组 */}
                         <div className="hidden md:flex space-x-1">
                           {TASK_ACTIONS.map(taskAction => {
@@ -393,7 +395,10 @@ export default function ScanTasksPage() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className={cn("h-7 w-7", isDestructive && "text-destructive hover:text-destructive")}
+                                    className={cn(
+                                      "h-7 w-7",
+                                      isDestructive && "text-destructive hover:text-destructive"
+                                    )}
                                     onClick={() =>
                                       setTaskActionDialogData({
                                         ...taskAction,
@@ -411,12 +416,7 @@ export default function ScanTasksPage() {
                             if (route) {
                               return (
                                 <CustomTooltip key={key} description={title}>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-7 w-7"
-                                    asChild
-                                  >
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
                                     <Link to={route(task.id)}>
                                       <Icon className="w-4 h-4" />
                                     </Link>
@@ -585,4 +585,3 @@ export default function ScanTasksPage() {
     </div>
   );
 }
-

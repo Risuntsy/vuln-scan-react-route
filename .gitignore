@@ -7,4 +7,5 @@
 
 /vuln-scan-next/
 .cursorrules
-.env
+# .env
+.env.local

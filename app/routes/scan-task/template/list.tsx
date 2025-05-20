@@ -1,16 +1,10 @@
-import { useLoaderData, useSearchParams, type LoaderFunctionArgs, Link, useFetcher, Form } from "react-router";
-import { getToken, getSearchParams, r, sleep } from "#/lib";
+import { useLoaderData, useSearchParams, type LoaderFunctionArgs, Link, useFetcher } from "react-router";
+import { getToken, getSearchParams, r, sleep, cn } from "#/lib";
 import { getTemplateData, deleteTemplateDetail } from "#/api";
 import { DASHBOARD_ROUTE, TEMPLATE_CREATE_ROUTE, TEMPLATE_EDIT_ROUTE } from "#/routes";
 import {
   Button,
   Card,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Alert,
   Header,
   AlertDialog,
@@ -87,14 +81,14 @@ export default function ScanTemplatePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full p-2 space-y-2">
+    <div className="flex flex-1 flex-col h-full p-4 space-y-4">
       <Header routes={[{ name: "Dashboard", href: DASHBOARD_ROUTE }, { name: "扫描模板" }]}>
         <div className="flex items-center justify-between w-full">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">扫描模板</h1>
-            <p className="text-muted-foreground text-sm">管理扫描任务使用的模板</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary">扫描模板</h1>
+            <p className="text-muted-foreground text-sm mt-1">管理扫描任务使用的模板</p>
           </div>
-          <Button asChild>
+          <Button asChild className="shadow-md hover:shadow-lg transition-shadow">
             <Link to={TEMPLATE_CREATE_ROUTE}>
               <Plus className="w-4 h-4 mr-2" />
               新建模板
@@ -103,69 +97,81 @@ export default function ScanTemplatePage() {
         </div>
       </Header>
 
-      <Card className="flex flex-1 overflow-hidden">
-        <div className="flex-1">
-          <Table className="h-full">
-            <TableHeader className="sticky top-0 bg-background z-10">
-              <TableRow>
-                <TableHead>模板名称</TableHead>
-                <TableHead className="w-[100px] text-right">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {templates.length > 0 ? (
-                templates.map(template => (
-                  <React.Fragment key={template.id}>
-                    <TableRow>
-                      <TableCell className="font-medium">{!!template.name ? template.name : "-"}</TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button variant="outline" size="sm" className="h-8" asChild>
-                          <Link to={r(TEMPLATE_EDIT_ROUTE, { variables: { templateId: template.id } })}>
-                            <Pencil className="w-4 h-4 mr-2" />
-                            编辑
-                          </Link>
+      <Card className="flex flex-1 overflow-hidden shadow-lg">
+        <div className="flex-1 overflow-auto p-4">
+          {templates.length > 0 ? (
+            <ul className="space-y-3">
+              {templates.map(template => (
+                <li
+                  key={template.id}
+                  className="flex items-center justify-between p-3 bg-background rounded-md border border-border hover:border-primary transition-colors"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-medium text-lg">
+                      {template.name || "-"} <span className="text-sm text-muted-foreground">(ID: {template.id})</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 shadow-sm hover:shadow transition-shadow"
+                      asChild
+                    >
+                      <Link to={r(TEMPLATE_EDIT_ROUTE, { variables: { templateId: template.id } })}>
+                        <Pencil className="w-4 h-4 mr-2" />
+                        编辑
+                      </Link>
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="h-8 shadow-sm hover:shadow transition-shadow"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          删除
                         </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" className="h-8">
-                              <Trash2 className="w-4 h-4 mr-2" />
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-lg font-bold">确认删除</AlertDialogTitle>
+                          <AlertDialogDescription className="text-muted-foreground">
+                            确定要删除 "{template.name}" 模板吗？此操作无法撤销。
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter className="space-x-2">
+                          <AlertDialogCancel className="shadow-sm hover:shadow transition-shadow">
+                            取消
+                          </AlertDialogCancel>
+                          <AlertDialogAction>
+                            <Button
+                              onClick={() =>
+                                fetcher.submit(
+                                  { templateId: template.id, _action: "delete" },
+                                  { method: "post", encType: "application/json" }
+                                )
+                              }
+                              disabled={fetcher.state !== "idle"}
+                              className={cn(
+                                "shadow-sm hover:shadow transition-shadow",
+                                fetcher.state !== "idle" && "animate-pulse"
+                              )}
+                            >
                               删除
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>确认删除</AlertDialogTitle>
-                              <AlertDialogDescription>确定要删除此模板吗？此操作无法撤销。</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>取消</AlertDialogCancel>
-                              <Button
-                                onClick={() =>
-                                  fetcher.submit(
-                                    { templateId: template.id, _action: "delete" },
-                                    { method: "post", encType: "application/json" }
-                                  )
-                                }
-                                disabled={fetcher.state !== "idle"}
-                              >
-                                {fetcher.state !== "idle" ? <span className="animate-spin">⏳</span> : "删除"}
-                              </Button>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={2} className="h-24 text-center text-muted-foreground">
-                    没有找到扫描模板。
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="h-32 flex items-center justify-center text-muted-foreground">没有找到扫描模板。</div>
+          )}
         </div>
 
         <PaginationControls pageIndex={pageIndex} pageSize={pageSize} total={total} setSearchParams={setSearchParams} />

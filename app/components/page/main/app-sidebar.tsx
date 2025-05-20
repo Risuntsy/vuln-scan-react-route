@@ -25,21 +25,21 @@ import { APP_NAME } from "#/configs";
 const userMenuItems: ({ icon?: React.ElementType; label?: string; href?: string; variant?: "danger" } & {
   type?: "separator";
 })[] = [
-  {
-    icon: User,
-    label: "个人资料"
-  },
-  {
-    icon: Settings,
-    label: "账户设置"
-  },
-  {
-    icon: Bell,
-    label: "通知中心"
-  },
-  {
-    type: "separator"
-  },
+  // {
+  //   icon: User,
+  //   label: "个人资料"
+  // },
+  // {
+  //   icon: Settings,
+  //   label: "账户设置"
+  // },
+  // {
+  //   icon: Bell,
+  //   label: "通知中心"
+  // },
+  // {
+  //   type: "separator"
+  // },
   {
     icon: LogOut,
     label: "退出登录",
@@ -49,11 +49,11 @@ const userMenuItems: ({ icon?: React.ElementType; label?: string; href?: string;
 ] as const;
 
 // 用户信息配置
-const userProfile = {
-  avatar: "https://avatars.githubusercontent.com/u/1000",
-  name: "管理员",
-  email: "admin@example.com"
-};
+// const userProfile = {
+//   avatar: "https://avatars.githubusercontent.com/u/1000",
+//   name: "管理员",
+//   email: "admin@example.com"
+// };
 
 // Helper function to check if any sub-item is active
 function hasActiveSubItem(items: SideBarItem[], pathname: string): boolean {
@@ -116,7 +116,12 @@ function SidebarList({ items, isSubmenu = false }: { items: SideBarItem[]; isSub
   );
 }
 
-export function AppSidebar({ items }: { items: SideBarItem[] }) {
+interface AppSidebarProps {
+  items: SideBarItem[];
+  user: string;
+}
+
+export function AppSidebar({ items, user }: AppSidebarProps) {
   return (
     <Sidebar variant="floating" className="border-r shadow-sm">
       <SidebarHeader className="p-4 flex items-center">
@@ -128,25 +133,30 @@ export function AppSidebar({ items }: { items: SideBarItem[] }) {
         <SidebarList items={items} />
       </SidebarContent>
       <SidebarFooter className="border-t p-4 mt-auto">
-        <UserProfile profile={userProfile} menuItems={userMenuItems} />
+        <UserProfile profile={user} menuItems={userMenuItems} />
       </SidebarFooter>
     </Sidebar>
   );
 }
 
-function UserProfile({ profile, menuItems }: { profile: typeof userProfile; menuItems: typeof userMenuItems }) {
+interface UserProfileProps {
+  profile: string;
+  menuItems: typeof userMenuItems;
+}
+
+function UserProfile({ profile, menuItems }: UserProfileProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center justify-between w-full cursor-pointer hover:bg-muted/50 rounded-md p-2 transition-colors">
           <div className="flex items-center gap-3">
             <Avatar className="border-2 border-primary/10">
-              <AvatarImage src={profile.avatar} alt={`${profile.name}的头像`} />
-              <AvatarFallback className="bg-primary/10 text-primary">{profile.name.slice(0, 2)}</AvatarFallback>
+              {/* <AvatarImage src={profile.avatar} alt={`${profile.name}的头像`} /> */}
+              <AvatarFallback className="bg-primary/10 text-primary">{profile.slice(0, 2)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{profile.name}</span>
-              <span className="text-xs text-muted-foreground truncate max-w-[120px]">{profile.email}</span>
+              <span className="text-sm font-medium">{profile}</span>
+              {/* <span className="text-xs text-muted-foreground truncate max-w-[120px]">{profile.email}</span> */}
             </div>
           </div>
           <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />

@@ -1,6 +1,5 @@
 # vuln-scan-react-route - scopesentry
 
+## .env
 
-## TODO
-
-- [ ] 适配1.7
+ - API_BASE_URL

@@ -10,6 +10,4 @@ export async function loader() {
   });
 }
 
-export default function LogoutPage() {
-  return null;
-}
+export default function LogoutPage() {}

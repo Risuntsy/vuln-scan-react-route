@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "#/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 
 interface CustomTooltipProps {
   description: string;
@@ -13,18 +8,13 @@ interface CustomTooltipProps {
   align?: "start" | "center" | "end";
 }
 
-export const CustomTooltip: React.FC<CustomTooltipProps> = ({
-  description,
-  children,
-  side = "top",
-  align = "center"
-}) => (
-  <TooltipProvider>
+export function CustomTooltip({ description, children, side = "top", align = "center" }: CustomTooltipProps) {
+  return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent side={side} align={align}>
         <p className="text-sm">{description}</p>
       </TooltipContent>
     </Tooltip>
-  </TooltipProvider>
-);
+  );
+}

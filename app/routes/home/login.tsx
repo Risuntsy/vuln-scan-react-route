@@ -7,7 +7,7 @@ import { z } from "zod";
 import { redirect, useActionData } from "react-router";
 import { Alert, AlertDescription } from "#/components";
 import { login } from "#/api";
-import { tokenCookie, getToken } from "#/lib";
+import { tokenCookie, userCookie, getTokenAndUser } from "#/lib";
 import { DASHBOARD_ROUTE } from "#/routes";
 import type { Route } from "./+types/login";
 import { APP_NAME } from "#/configs";
@@ -19,30 +19,22 @@ const loginSchema = z.object({
 });
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const token = await getToken(request, false);
-  if (token) {
+  const { token, user } = await getTokenAndUser(request);
+  if (token && user) {
     return redirect(DASHBOARD_ROUTE);
   }
-  return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {
   const { success, data, error } = loginSchema.safeParse(Object.fromEntries(await request.formData()));
-
-  if (!success) {
-    return { success: false, message: error.message };
-  }
-
+  if (!success) return { success: false, message: error.message };
   const { token, message } = await login(data);
-
-  if (!token) {
-    return { success: false, message };
-  }
-
+  if (!token) return { success: false, message };
   return redirect(data.redirect || DASHBOARD_ROUTE, {
-    headers: {
-      "Set-Cookie": await tokenCookie.serialize(token)
-    }
+    headers: [
+      ["Set-Cookie", await tokenCookie.serialize(token)],
+      ["Set-Cookie", await userCookie.serialize(data.username)]
+    ]
   });
 }
 
@@ -57,7 +49,7 @@ export default function LoginPage() {
           <CardDescription className="text-center">请输入您的账号和密码登录</CardDescription>
         </CardHeader>
         <CardContent>
-          {message && (
+          {!success && message && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{message}</AlertDescription>

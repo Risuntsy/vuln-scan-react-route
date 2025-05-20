@@ -12,14 +12,15 @@ import {
   Tooltip,
   Legend,
   LineChart,
-  Line
+  Line,
+  Treemap,
 } from "recharts";
 
 import { getToken, r } from "#/lib";
 import { getAssetStatistics, getTaskDetail } from "#/api";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, ScanTaskHeader, Alert, Button } from "#/components";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, ScanTaskHeader, Alert, Button, Badge } from "#/components";
 import { SCAN_TASK_ASSETS_ROUTE, SCAN_TASK_ROUTE } from "#/routes";
-import { PieChartIcon, BarChartIcon, LineChartIcon } from "lucide-react";
+import { PieChartIcon, BarChartIcon, LineChartIcon, TreesIcon, ShieldAlertIcon } from "lucide-react";
 import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d", "#ffc658"];
@@ -68,6 +69,28 @@ const MOCK_DATA = {
     { name: "50%", value: 50 },
     { name: "75%", value: 75 },
     { name: "100%", value: 100 }
+  ],
+  VulnerabilityTypes: [
+    { name: "SQL注入", value: 15 },
+    { name: "XSS", value: 25 },
+    { name: "文件包含", value: 10 },
+    { name: "命令执行", value: 5 },
+    { name: "信息泄露", value: 30 },
+    { name: "其他", value: 15 }
+  ],
+  AssetDistribution: [
+    { name: "Web应用", size: 400 },
+    { name: "数据库", size: 300 },
+    { name: "服务器", size: 300 },
+    { name: "网络设备", size: 200 },
+    { name: "IoT设备", size: 100 }
+  ],
+  VulnerabilityTrend: [
+    { name: "1月", 高危: 4, 中危: 10, 低危: 20 },
+    { name: "2月", 高危: 3, 中危: 8, 低危: 15 },
+    { name: "3月", 高危: 5, 中危: 12, 低危: 25 },
+    { name: "4月", 高危: 2, 中危: 7, 低危: 18 },
+    { name: "5月", 高危: 6, 中危: 15, 低危: 30 },
   ]
 };
 
@@ -89,11 +112,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     }
 
     const statsData = {
+      ...MOCK_DATA,
       Port: assetStatistics.Port || MOCK_DATA.Port,
       Service: assetStatistics.Service || MOCK_DATA.Service,
       Product: assetStatistics.Product || MOCK_DATA.Product,
-      RiskLevel: MOCK_DATA.RiskLevel,
-      ScanProgress: MOCK_DATA.ScanProgress
     };
 
     return {
@@ -207,7 +229,7 @@ const renderBarChartCard = (title: string, data: ChartDataItem[], description?: 
   </Card>
 );
 
-const renderLineChartCard = (title: string, data: ChartDataItem[], description?: string) => (
+const renderLineChartCard = (title: string, data: any[], description?: string) => (
   <Card>
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
@@ -225,12 +247,63 @@ const renderLineChartCard = (title: string, data: ChartDataItem[], description?:
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="高危" stroke="#ef4444" />
+            <Line type="monotone" dataKey="中危" stroke="#f97316" />
+            <Line type="monotone" dataKey="低危" stroke="#eab308" />
           </LineChart>
         </ResponsiveContainer>
       ) : (
         <EmptyPlaceholder title="无数据" description={`没有找到 ${title} 数据。`} className="h-[300px]" />
       )}
+    </CardContent>
+  </Card>
+);
+
+const renderTreeMapCard = (title: string, data: any[], description?: string) => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="flex items-center gap-2">
+        <TreesIcon className="w-5 h-5 text-muted-foreground" />
+        {title}
+      </CardTitle>
+      {description && <CardDescription>{description}</CardDescription>}
+    </CardHeader>
+    <CardContent>
+      {data.length > 0 ? (
+        <ResponsiveContainer width="100%" height={300}>
+          <Treemap
+            data={data}
+            dataKey="size"
+            aspectRatio={4 / 3}
+            stroke="#fff"
+            fill="#8884d8"
+          >
+            <Tooltip />
+          </Treemap>
+        </ResponsiveContainer>
+      ) : (
+        <EmptyPlaceholder title="无数据" description={`没有找到 ${title} 数据。`} className="h-[300px]" />
+      )}
+    </CardContent>
+  </Card>
+);
+
+const renderVulnerabilitySummary = (data: ChartDataItem[]) => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="flex items-center gap-2">
+        <ShieldAlertIcon className="w-5 h-5 text-muted-foreground" />
+        漏洞风险概览
+      </CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="flex flex-wrap gap-4">
+        {data.map((item, index) => (
+          <Badge key={index} variant={item.name === "高危" ? "destructive" : item.name === "中危" ? "secondary" : "default"}>
+            {item.name}: {item.value}
+          </Badge>
+        ))}
+      </div>
     </CardContent>
   </Card>
 );
@@ -261,6 +334,9 @@ export default function ScanTaskStatisticsPage() {
   const productChartData = mapDataForChart(stats.Product);
   const riskLevelData = mapDataForChart(stats.RiskLevel);
   const scanProgressData = stats.ScanProgress;
+  const vulnerabilityTypesData = stats.VulnerabilityTypes;
+  const assetDistributionData = stats.AssetDistribution;
+  const vulnerabilityTrendData = stats.VulnerabilityTrend;
 
   return (
     <div className="flex flex-col h-full">
@@ -279,14 +355,19 @@ export default function ScanTaskStatisticsPage() {
       <div className="p-4 space-y-4 flex-1 overflow-auto">
         {showErrorAlert && <Alert variant="default">{error}</Alert>}
 
+        {renderVulnerabilitySummary(riskLevelData)}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {renderPieChartCard("端口分布 (Top 4 + 其他)", portChartData, "任务扫描到的主要端口分布")}
           {renderPieChartCard("服务分布 (Top 4 + 其他)", serviceChartData, "识别到的主要网络服务类型分布")}
           {renderPieChartCard("风险等级分布", riskLevelData, "资产风险等级统计", true)}
           {renderBarChartCard("产品分布", productChartData, "识别到的软件产品或组件分布")}
+          {renderPieChartCard("漏洞类型分布", vulnerabilityTypesData, "发现的主要漏洞类型")}
+          {renderTreeMapCard("资产分布", assetDistributionData, "不同类型资产的分布情况")}
         </div>
         <div className="grid grid-cols-1 gap-4">
-          {renderLineChartCard("扫描进度(模拟)", scanProgressData, "模拟任务扫描进度或阶段")}
+          {renderLineChartCard("漏洞趋势", vulnerabilityTrendData, "近期漏洞发现趋势")}
+          {renderLineChartCard("扫描进度", scanProgressData, "任务扫描进度或阶段")}
         </div>
       </div>
     </div>

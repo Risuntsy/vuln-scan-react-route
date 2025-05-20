@@ -1,11 +1,19 @@
 import { AppSidebar } from "#/components";
 import { menuItems } from "#/routes";
-import { Outlet, useNavigation } from "react-router";
+import { Outlet, redirect, useNavigation, type LoaderFunctionArgs } from "react-router";
 import { GlobalSpinner } from "#/components";
 import { AIChatButton } from "#/components/custom/ai/ai-chat-button";
+import { getUser } from "#/lib";
 // import { useEffect, useState } from "react";
 
-export default function NavLayout() {
+
+export async function loader({request}: LoaderFunctionArgs) {
+  const user = await getUser(request);
+  return { user };
+}
+
+
+export default function NavLayout({ loaderData }: { loaderData: { user: string } }) {
   // const navigation = useNavigation();
   // const [isLoading, setIsLoading] = useState(false);
 
@@ -25,7 +33,7 @@ export default function NavLayout() {
   return (
     <>
       {/* {isLoading && <GlobalSpinner />} */}
-      <AppSidebar items={menuItems} />
+      <AppSidebar items={menuItems} user={loaderData.user} />
       <main className="flex-1 overflow-auto">
         <div className="min-h-full">
           <Outlet />

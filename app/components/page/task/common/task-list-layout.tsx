@@ -29,6 +29,7 @@ export interface TaskListLayoutProps {
   pageIndex: number;
   total: number;
   children: React.ReactNode;
+  onCreateClick?: () => void;
 }
 
 // 任务列表过滤栏组件
@@ -117,7 +118,8 @@ export function TaskListLayout({
   pageSize,
   pageIndex,
   total,
-  children
+  children,
+  onCreateClick
 }: TaskListLayoutProps) {
   return (
     <div className="space-y-2 max-w-screen h-full p-2">
@@ -129,11 +131,17 @@ export function TaskListLayout({
           </div>
           {createRoute && (
             <Link to={createRoute}>
-              <Button>
+              <Button onClick={onCreateClick}>
                 <Plus className="w-4 h-4 mr-2" />
                 {createButtonText}
               </Button>
             </Link>
+          )}
+          {createButtonText && !createRoute && (
+            <Button onClick={onCreateClick}>
+              <Plus className="w-4 h-4 mr-2" />
+              {createButtonText}
+            </Button>
           )}
         </div>
       </Header>

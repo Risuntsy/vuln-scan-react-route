@@ -1,7 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Header } from "#/components";
-import { CheckCircle2, Clock, Play, Plus, Server, HardDrive, Cpu, MemoryStick, Database, Globe, ShieldAlert, AlertTriangle, Link as LinkIcon } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  Play,
+  Plus,
+  Server,
+  HardDrive,
+  Cpu,
+  MemoryStick,
+  Database,
+  Globe,
+  ShieldAlert,
+  AlertTriangle,
+  Link as LinkIcon
+} from "lucide-react";
 import { SCAN_TASK_CREATE_ROUTE, SCAN_TASKS_ROUTE } from "#/routes";
-import { getNodeData, getOverallAssetStatistics, getTaskData } from "#/api";
+import { getNodeData, getOverallAssetStatistics, getTaskData, getVersionData } from "#/api";
 import { getToken } from "#/lib";
 import { Link, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import type { VersionData, NodeData, AssetStatisticsResponse } from "#/api";
@@ -12,7 +26,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getOverallAssetStatistics({ token }),
     getTaskData({ pageSize: 5, token }),
     getNodeData({ token }),
-    { list: [] } // getVersionData({ token })
+    Promise.resolve({
+      list: [
+        {
+          name: "ScopeSentry-Server",
+          cversion: "1.7",
+          lversion: "1.7",
+          msg: "https://www.scope-sentry.top/guide/update/"
+        },
+        {
+          name: "node-test",
+          cversion: "1.7",
+          lversion: "1.7",
+          msg: "https://www.scope-sentry.top/guide/update/"
+        }
+      ]
+    }) // getVersionData({ token })
   ]);
 
   const runningTasks = nodeData.list?.reduce((acc, node) => acc + (node.running ?? 0), 0) ?? 0;
@@ -20,7 +49,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return { assetStats, taskData, nodeData, runningTasks, recentTasks, versionData };
 }
-
 
 interface AssetStatisticsProps {
   data: AssetStatisticsResponse;
@@ -30,7 +58,7 @@ export function AssetStatistics({ data }: AssetStatisticsProps) {
   const stats = [
     {
       title: "总资产数",
-      value: data.assetCount ,
+      value: data.assetCount,
       icon: Database,
       color: "text-blue-500",
       description: "已发现的资产总数"
@@ -72,23 +100,19 @@ export function AssetStatistics({ data }: AssetStatisticsProps) {
         return (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.title}
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
               <Icon className={`h-4 w-4 ${stat.color}`} />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">
-                {stat.description}
-              </p>
+              <p className="text-xs text-muted-foreground">{stat.description}</p>
             </CardContent>
           </Card>
         );
       })}
     </div>
   );
-} 
+}
 
 const taskStatusConfig = {
   "1": { icon: Play, iconColor: "text-blue-500", status: "进行中", statusClass: "bg-blue-50 text-blue-700" },
@@ -97,22 +121,38 @@ const taskStatusConfig = {
 };
 
 function RecentTasks({ recentTasks }: { recentTasks: any }) {
-  const tasks = recentTasks?.list?.map((task: any) => {
-    const { icon, iconColor, status, statusClass } =
-      taskStatusConfig[task?.status as keyof typeof taskStatusConfig] ?? taskStatusConfig["0"];
-    return { icon, iconColor, title: task?.name, subtitle: `任务编号: ${task?.taskNum}`, status, time: task?.creatTime, statusClass };
-  }) ?? [];
+  const tasks =
+    recentTasks?.list?.map((task: any) => {
+      const { icon, iconColor, status, statusClass } =
+        taskStatusConfig[task?.status as keyof typeof taskStatusConfig] ?? taskStatusConfig["0"];
+      return {
+        icon,
+        iconColor,
+        title: task?.name,
+        subtitle: `任务编号: ${task?.taskNum}`,
+        status,
+        time: task?.creatTime,
+        statusClass
+      };
+    }) ?? [];
 
   return (
     <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
       <CardHeader className="flex justify-between pb-2 border-b">
         <CardTitle className="text-lg font-semibold">最近任务</CardTitle>
-        <Link to={SCAN_TASKS_ROUTE}><Button size="sm" className="text-sm">查看全部</Button></Link>
+        <Link to={SCAN_TASKS_ROUTE}>
+          <Button size="sm" className="text-sm">
+            查看全部
+          </Button>
+        </Link>
       </CardHeader>
       <CardContent className="pt-2">
         <div className="space-y-2">
           {tasks.map((task: any, index: number) => (
-            <div key={index} className="flex justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+            <div
+              key={index}
+              className="flex justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            >
               <div className="flex items-center space-x-2">
                 <task.icon className={`w-4 h-4 ${task.iconColor}`} />
                 <div>
@@ -121,7 +161,9 @@ function RecentTasks({ recentTasks }: { recentTasks: any }) {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Badge variant="secondary" className={task.statusClass}>{task.status}</Badge>
+                <Badge variant="secondary" className={task.statusClass}>
+                  {task.status}
+                </Badge>
                 <p className="text-xs text-gray-500">{task.time}</p>
               </div>
             </div>
@@ -141,7 +183,10 @@ function VersionInfo({ versionData }: { versionData: { list: VersionData[] } }) 
       <CardContent className="pt-2">
         <div className="space-y-2">
           {versionData.list?.map((version, index) => (
-            <div key={index} className="flex justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+            <div
+              key={index}
+              className="flex justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            >
               <div className="flex items-center space-x-2">
                 <Server className="w-4 h-4 text-blue-500" />
                 <div>
@@ -191,7 +236,9 @@ function NodeStatusCard({ nodeData }: { nodeData: { list: NodeData[] } }) {
                 {nodeMetrics.map(({ icon: Icon, color, label, value }, idx) => (
                   <div key={idx} className="flex items-center space-x-1">
                     <Icon className={`w-3 h-3 ${color}`} />
-                    <p className="text-xs">{label}: <span className="font-medium">{value(node)}</span></p>
+                    <p className="text-xs">
+                      {label}: <span className="font-medium">{value(node)}</span>
+                    </p>
                   </div>
                 ))}
               </div>
@@ -199,14 +246,24 @@ function NodeStatusCard({ nodeData }: { nodeData: { list: NodeData[] } }) {
                 <div key={idx} className="mb-1">
                   <div className="flex justify-between mb-1">
                     <div className="flex items-center space-x-1">
-                      {type === "CPU" ? <Cpu className="w-3 h-3 text-yellow-500" /> : <MemoryStick className="w-3 h-3 text-purple-500" />}
+                      {type === "CPU" ? (
+                        <Cpu className="w-3 h-3 text-yellow-500" />
+                      ) : (
+                        <MemoryStick className="w-3 h-3 text-purple-500" />
+                      )}
                       <span className="text-xs">{type}使用率</span>
                     </div>
-                    <span className="text-xs font-medium">{Number(node?.[type === "CPU" ? "cpuNum" : "memNum"])?.toFixed(2)}%</span>
+                    <span className="text-xs font-medium">
+                      {Number(node?.[type === "CPU" ? "cpuNum" : "memNum"])?.toFixed(2)}%
+                    </span>
                   </div>
                   <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
-                    <div className={`h-full ${type === "CPU" ? "bg-yellow-500" : "bg-purple-500"} rounded-full transition-all duration-300`}
-                      style={{ width: `${Number(node?.[type === "CPU" ? "cpuNum" : "memNum"])}%` }} />
+                    <div
+                      className={`h-full ${
+                        type === "CPU" ? "bg-yellow-500" : "bg-purple-500"
+                      } rounded-full transition-all duration-300`}
+                      style={{ width: `${Number(node?.[type === "CPU" ? "cpuNum" : "memNum"])}%` }}
+                    />
                   </div>
                 </div>
               ))}

@@ -88,19 +88,16 @@ def run(target, port=80):
   };
 }
 
-// Placeholder action function
 export async function action({ request }: ActionFunctionArgs) {
   const [token, rawData] = await Promise.all([getToken(request), request.json()]);
   const { data, error: parseError } = formSchema.safeParse(rawData);
 
   if (parseError) {
-    return { success: false, message: parseError.message };
+    return { success: false, message: parseError.errors.map(e => e.message).join(", ") };
   }
 
-  // In a real implementation, you would call an API here
-  console.log("Would submit plugin data:", data);
+  // console.log("Would submit plugin data:", data);
 
-  // Pretend it's successful
   return redirect(PLUGINS_ROUTE);
 }
 

@@ -60,7 +60,6 @@ const mainRoutes = [
   route(SCAN_TASK_STATISTICS_ROUTE, "routes/scan-task/statistic.tsx"),
   route(ASSET_ROUTE, "routes/scan-task/asset/detail.tsx"),
   route(SCHEDULED_TASKS_ROUTE, "routes/scheduled-task/list.tsx"),
-  route(SCHEDULED_TASK_EDIT_ROUTE, "routes/scheduled-task/create-and-edit.tsx", { id: "edit-scheduled-task" }),
   route(TEMPLATES_ROUTE, "routes/scan-task/template/list.tsx"),
   route(TEMPLATE_EDIT_ROUTE, "routes/scan-task/template/create-and-edit.tsx", { id: "edit-template" }),
   route(TEMPLATE_CREATE_ROUTE, "routes/scan-task/template/create-and-edit.tsx", { id: "create-template" }),

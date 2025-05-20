@@ -169,6 +169,7 @@ request: ${JSON.stringify({ ...fetchOptions, body: processedConfig.data }, null,
     fetchOptions.body = processedConfig.data;
     const responseInfo = `response: ${JSON.stringify(serializableMetadata, null, 2)}`;
     if (config.enableLog) {
+      console.log(requestInfo);
       console.log(responseInfo);
     }
 

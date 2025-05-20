@@ -6,7 +6,6 @@ export async function login(data: { username: string; password: string }) {
   const response = await apiClient.post<BaseResponse<LoginResponse>>("/user/login", data, {
     withCredentials: false,
     responseType: "object",
-    enableLog: true
   });
   return { token: response.data ? `Bearer ${response.data.access_token}` : null, message: response.message };
 }

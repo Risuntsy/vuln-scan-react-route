@@ -10,7 +10,8 @@ import {
   FileCode,
   Fingerprint,
   FileText,
-  Settings
+  Settings,
+  ChartBar
 } from "lucide-react";
 
 export const HOME_ROUTE = "/";
@@ -51,6 +52,8 @@ export const SYSTEM_CONFIGURATION_ROUTE = CONFIGURATION_ROUTE + "/system";
 export const SUBFINDER_CONFIGURATION_ROUTE = CONFIGURATION_ROUTE + "/subfinder";
 export const RAD_CONFIGURATION_ROUTE = CONFIGURATION_ROUTE + "/rad";
 
+const TEMP_STATISTIC_ROUTE = "/temp-statistic";
+
 const mainRoutes = [
   route(DASHBOARD_ROUTE, "routes/home/dashboard.tsx"),
   route(SCAN_TASKS_ROUTE, "routes/scan-task/list.tsx"),
@@ -77,7 +80,8 @@ const mainRoutes = [
   route(SENSITIVE_INFORMATION_RULE_ROUTE, "routes/sensitive-information-rule/list.tsx"),
   route(SYSTEM_CONFIGURATION_ROUTE, "routes/configuration/system.tsx"),
   route(SUBFINDER_CONFIGURATION_ROUTE, "routes/configuration/subfinder.tsx"),
-  route(RAD_CONFIGURATION_ROUTE, "routes/configuration/rad.tsx")
+  route(RAD_CONFIGURATION_ROUTE, "routes/configuration/rad.tsx"),
+  route(TEMP_STATISTIC_ROUTE, "routes/scan-task/statistic/page.tsx")
 ];
 
 const navLayoutRoutes = layout("layouts/nav-layout.tsx", mainRoutes);
@@ -126,5 +130,6 @@ export const menuItems: SideBarItem[] = [
       { name: "Rad配置", href: RAD_CONFIGURATION_ROUTE, Icon: Settings }
     ],
     Icon: Settings
-  }
+  },
+  { name: "统计", href: TEMP_STATISTIC_ROUTE, Icon: ChartBar }
 ];

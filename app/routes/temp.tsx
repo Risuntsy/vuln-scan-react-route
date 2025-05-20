@@ -1,4 +1,15 @@
-import { AlertAction, Button, CustomTooltip, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, errorToast, successToast, Toaster } from "#/components";
+import {
+  AlertAction,
+  Button,
+  CustomTooltip,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  errorToast,
+  successToast,
+  Toaster
+} from "#/components";
 import { MoreHorizontal } from "lucide-react";
 
 import { useEffect } from "react";
@@ -45,24 +56,22 @@ export default function TempPage() {
         <DropdownMenuContent align="end">
           <DropdownMenuItem>
             <AlertAction
-              itemContent={
-                <span className="flex items-center">
-                  <span>test button</span>
-                </span>
-              }
-              onAction={() => {
-                fetcher.submit(
+              onConfirm={async () => {
+                await fetcher.submit(
                   { _action: "test", message: "WTF" + Math.random() },
                   { method: "post", encType: "application/json" }
                 );
               }}
-            />
+            >
+              <span className="flex items-center">
+                <span>test button</span>
+              </span>
+            </AlertAction>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <span>{loaderData}</span>
-
 
       <CustomTooltip description="test tooltip">
         <Button variant="ghost" size="icon" className="h-7 w-7">
@@ -74,4 +83,3 @@ export default function TempPage() {
     </div>
   );
 }
-

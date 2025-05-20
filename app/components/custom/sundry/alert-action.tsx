@@ -15,7 +15,7 @@ import { cn } from "#/lib/utils";
 interface AlertActionProps {
   children: React.ReactNode;
   onCancel?: () => void;
-  onConfirm?: () => Promise<void>;
+  onConfirm?: () => Promise<void> | void;
   confirmTitle?: string;
   confirmDescription?: string;
   confirmText?: string;

@@ -122,7 +122,6 @@ export async function action({ request }: ActionFunctionArgs): Promise<Scheduled
         throw new Error("Unsupported action");
     }
   } catch (error: any) {
-    console.error(`${_action} Error:`, error);
     return {
       success: false,
       message:

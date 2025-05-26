@@ -1,85 +1,47 @@
-import {
-  AlertAction,
-  Button,
-  CustomTooltip,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  errorToast,
-  successToast,
-  Toaster
-} from "#/components";
-import { MoreHorizontal } from "lucide-react";
+import * as React from "react";
 
-import { useEffect } from "react";
-import { type ActionFunctionArgs, type LoaderFunctionArgs, useFetcher, useLoaderData } from "react-router";
+import { Card, CardContent, type CarouselApi } from "#/components";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "#/components";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  return "init data";
-}
+export default function CarouselSpacing() {
+  const [api, setApi] = React.useState<CarouselApi>();
 
-export async function action({ request }: ActionFunctionArgs) {
-  // const formData = await request.formData();
+  React.useEffect(() => {
+    if (!api) return;
+    api.scrollTo(5);
+  }, [api]);
 
-  const data = await request.json();
-  return {
-    success: true,
-    message: data?.message || "ok",
-    data
-  };
-}
+  React.useEffect(() => {
+    if (!api) return;
 
-export default function TempPage() {
-  const fetcher = useFetcher();
-  const loaderData = useLoaderData<typeof loader>();
-
-  useEffect(() => {
-    if (fetcher.data) {
-      console.log(fetcher.data);
-      if (fetcher.data?.success) {
-        successToast(fetcher.data?.message || "操作成功");
+    const interval = setInterval(() => {
+      if (api.canScrollNext()) {
+        api.scrollNext();
       } else {
-        errorToast(fetcher.data?.message || "操作失败");
+        api.scrollTo(0);
       }
-    }
-  }, [fetcher.data]);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [api]);
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-7 w-7">
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <AlertAction
-              onConfirm={async () => {
-                await fetcher.submit(
-                  { _action: "test", message: "WTF" + Math.random() },
-                  { method: "post", encType: "application/json" }
-                );
-              }}
-            >
-              <span className="flex items-center">
-                <span>test button</span>
-              </span>
-            </AlertAction>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <span>{loaderData}</span>
-
-      <CustomTooltip description="test tooltip">
-        <Button variant="ghost" size="icon" className="h-7 w-7">
-          <MoreHorizontal className="w-4 h-4" />
-        </Button>
-      </CustomTooltip>
-
-      <Toaster />
+    <div className="">
+      <Carousel className="max-h-screen max-w-sm" setApi={setApi} opts={{ loop: true }} orientation="vertical">
+        <CarouselContent className="-ml-1 max-h-screen">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <CarouselItem key={index} className="pl-1 md:basis-1/2 lg:basis-1/4">
+              <div className="p-1">
+                <Card>
+                  <CardContent className="flex aspect-square items-center justify-center p-6">
+                    <span className="text-2xl font-semibold">{index + 1}</span>
+                  </CardContent>
+                </Card>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
     </div>
   );
 }

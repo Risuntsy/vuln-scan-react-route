@@ -65,7 +65,7 @@ export default function Dashboard() {
 
         {/* Right Column */}
         <div className="md:w-1/4 space-y-3 flex flex-col">
-          <Panel className="flex-[2] min-h-0 max-h-[66vh]">
+          <Panel className="flex-[2] min-h-0 max-h-[66vh] flex flex-col">
             <h2 className={cardTitleClass}>扫描节点状态</h2>
             <ScanningNodes />
           </Panel>

@@ -281,7 +281,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <Header className="bg-white border-b">
+      <Header className="border-b">
         <div className="flex justify-between w-full px-4 py-3">
           <div>
             <h1 className="text-xl font-bold text-gray-900">概览</h1>

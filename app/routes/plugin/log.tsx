@@ -19,7 +19,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const logData = await getPluginLog({ module, hash, token });
     return { success: true, logContent: logData?.logs, module, hash };
   } catch (error) {
-    console.error("Failed to load plugin log:", error);
     return {
       success: false,
       logContent: "无法加载日志",
@@ -42,7 +41,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     await cleanPluginLog({ module, hash, token });
     return { success: true, message: "日志清理成功" };
   } catch (error) {
-    console.error("Failed to clean plugin log:", error);
     return { success: false, message: "日志清理失败" };
   }
 }

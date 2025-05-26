@@ -142,7 +142,7 @@ export default function ScanTaskAssetPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 max-h-screen">
+    <>
       <ScanTaskHeader taskId={taskId} taskDetail={taskDetail} routes={[{ name: "资产列表" }]} />
 
       <div className="flex-1 flex flex-col lg:flex-row gap-4">
@@ -165,7 +165,7 @@ export default function ScanTaskAssetPage() {
           <StatisticsSidebar selectTag={selectTag} removeTag={removeTag} assetStatistics={assetStatistics} taskId={taskId} />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

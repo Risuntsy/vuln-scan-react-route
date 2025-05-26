@@ -44,7 +44,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       message: "ok"
     };
   } catch (error) {
-    console.error(`Failed to load plugins for node ${nodeName}:`, error);
     return {
       success: false,
       message: `无法加载节点 ${nodeName} 的插件列表`,
@@ -79,7 +78,6 @@ export async function action({ request, params }: LoaderFunctionArgs) {
         return { success: false, message: "无效操作" };
     }
   } catch (error) {
-    console.error(`Failed to ${_action} plugin ${module}/${hash} on node ${nodeName}:`, error);
     const actionText = _action === "reinstall" ? "重新安装" : "重新检查";
     return { success: false, message: `插件${actionText}失败` };
   }

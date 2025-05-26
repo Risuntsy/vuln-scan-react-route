@@ -31,7 +31,8 @@ import {
   Header,
   CustomSelect,
   Alert,
-  AlertDescription
+  AlertDescription,
+  Checkbox
 } from "#/components";
 import { MultipleSelector } from "#/components";
 
@@ -192,22 +193,42 @@ example.com`}
               </CustomFormField>
 
               <CustomFormField name="node" label="节点" required>
-                <MultipleSelector
-                  options={nodeList}
-                  value={form.watch("node").map(node => ({ label: node, value: node }))}
-                  onChange={value => {
-                    form.setValue(
-                      "node",
-                      value.map(item => item.value)
-                    );
-                  }}
-                  disabled={nodeList.length === 0}
-                  emptyIndicator={
-                    <p className="text-sm text-muted-foreground">
-                      {nodeList.length === 0 ? "无在线节点" : "没有更多节点可选"}
-                    </p>
-                  }
-                />
+                <div className="flex space-x-2">
+                  <Checkbox
+                    id="selectAllNodes"
+                    checked={form.watch("node").length === nodeList.length && nodeList.length > 0}
+                    onCheckedChange={checked => {
+                      if (checked) {
+                        const allNodeValues = nodeList.map(node => node.value);
+                        form.setValue("node", allNodeValues);
+                      } else {
+                        form.setValue("node", []);
+                      }
+                    }}
+                    disabled={nodeList.length === 0}
+                  />
+                  <label htmlFor="selectAllNodes" className="text-sm font-medium">
+                    ALL
+                  </label>
+                </div>
+                <div className="space-y-2 space-x-2 flex">
+                  <MultipleSelector
+                    options={nodeList}
+                    value={form.watch("node").map(node => ({ label: node, value: node }))}
+                    onChange={value => {
+                      form.setValue(
+                        "node",
+                        value.map(item => item.value)
+                      );
+                    }}
+                    disabled={nodeList.length === 0}
+                    emptyIndicator={
+                      <p className="text-sm text-muted-foreground">
+                        {nodeList.length === 0 ? "无在线节点" : "没有更多节点可选"}
+                      </p>
+                    }
+                  />
+                </div>
               </CustomFormField>
 
               <CustomFormSection>

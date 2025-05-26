@@ -60,7 +60,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       message: "ok"
     };
   } catch (error) {
-    console.error("Failed to load configurations:", error);
     return {
       success: false,
       deduplicationConfig: null,
@@ -90,7 +89,6 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Error("未知的配置类型");
     }
   } catch (error) {
-    console.error("Failed to update configuration:", error);
     return { success: false, message: "更新配置失败" };
   }
 }

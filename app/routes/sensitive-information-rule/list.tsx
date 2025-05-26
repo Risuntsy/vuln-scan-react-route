@@ -4,9 +4,8 @@ import {
   type LoaderFunctionArgs,
   useFetcher,
   Form,
-  useRevalidator
 } from "react-router";
-import { getToken, getSearchParams, r, cn } from "#/lib";
+import { getToken, getSearchParams, cn } from "#/lib";
 import {
   getSensitiveData,
   deleteSensitiveData,
@@ -94,7 +93,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       message: "ok"
     };
   } catch (error) {
-    console.error("Failed to load sensitive rules:", error);
     return {
       success: false,
       sensitiveRules: [],
@@ -120,7 +118,6 @@ export async function action({ request }: LoaderFunctionArgs) {
       await deleteSensitiveData({ ids: [sensitiveId], token });
       return { success: true, message: "规则删除成功", action: _action };
     } catch (error) {
-      console.error("Failed to delete sensitive rule:", error);
       return { success: false, message: "删除规则失败", action: _action };
     }
   }
@@ -149,7 +146,6 @@ export async function action({ request }: LoaderFunctionArgs) {
         return { success: true, message: "规则创建成功", action: _action };
       }
     } catch (error) {
-      console.error("Failed to save sensitive rule:", error);
       return { success: false, message: id ? "更新规则失败" : "创建规则失败", action: _action };
     }
   }
@@ -163,7 +159,6 @@ export async function action({ request }: LoaderFunctionArgs) {
       await updateSensitiveState({ ids: [id], state, token });
       return { success: true, message: "规则状态更新成功", action: _action, state };
     } catch (error) {
-      console.error("Failed to update sensitive rule state:", error);
       return { success: false, message: "更新规则状态失败", action: _action };
     }
   }
@@ -210,6 +205,7 @@ export default function SensitiveRuleListPage() {
       return;
     }
     await fetcher.submit({ ...formData, _action: "save" }, { method: "post", encType: "application/json" });
+    setIsDialogOpen(false);
   };
 
   useEffect(() => {
@@ -369,12 +365,13 @@ export default function SensitiveRuleListPage() {
                               <AlertDialogCancel>取消</AlertDialogCancel>
                               <Button
                                 variant="destructive"
-                                onClick={() =>
-                                  fetcher.submit(
+                                onClick={async () => {
+                                  await fetcher.submit(
                                     { sensitiveId: rule.id, _action: "delete" },
                                     { method: "post", encType: "application/json" }
-                                  )
-                                }
+                                  );
+                                  
+                                }}
                                 disabled={fetcher.state !== "idle"}
                               >
                                 {fetcher.state !== "idle" && fetcher.data?.action === "delete" ? "删除中..." : "删除"}

@@ -125,7 +125,6 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       stats: statsData
     };
   } catch (error: any) {
-    console.error("Failed to load task statistics:", error);
     return {
       success: false,
       taskId,

@@ -17,9 +17,6 @@ export class UrlBuilder {
     }
 
     if (host.includes("://")) {
-      console.warn(
-        `Host "${host}" seems to include a protocol. Only the domain/hostname (and optionally port) should be provided.`
-      );
       try {
         const parsed = new URL(host);
         this.host = parsed.host;
@@ -79,7 +76,6 @@ export class UrlBuilder {
       });
     } catch (error) {
       if (error instanceof TypeError) {
-        console.error(`Invalid base URL provided: "${baseUrlString}"`, error);
         throw new Error(`Invalid base URL format: ${baseUrlString}`);
       }
       throw error;

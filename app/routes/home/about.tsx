@@ -1,12 +1,13 @@
 import { Link } from "react-router";
 import { Button } from "#/components";
 import { HOME_ROUTE, LOGIN_ROUTE } from "#/routes";
+import { APP_NAME } from "#/configs/constant";
 
 export default function About() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">关于 ScopeSentry</h1>
+        <h1 className="text-3xl font-bold">关于 {APP_NAME}</h1>
         <div className="space-x-4">
           <Link to={HOME_ROUTE}>
             <Button variant="outline">返回首页</Button>
@@ -20,7 +21,7 @@ export default function About() {
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">系统简介</h2>
         <p className="text-gray-700 mb-4">
-          ScopeSentry 是一个现代化的漏洞扫描系统，专注于帮助企业和组织发现、评估和管理其IT资产中的安全漏洞。
+          {APP_NAME} 是一个现代化的漏洞扫描系统，专注于帮助企业和组织发现、评估和管理其IT资产中的安全漏洞。
           我们的系统采用先进的扫描技术，提供全面的资产发现、漏洞检测和风险评估功能。
         </p>
       </section>
@@ -64,8 +65,7 @@ export default function About() {
           如果您有任何问题或建议，请通过以下方式联系我们：
         </p>
         <div className="mt-4">
-          <p className="text-gray-600">邮箱：contact@scope-sentry.com</p>
-          <p className="text-gray-600">官网：https://www.scope-sentry.top</p>
+        
         </div>
       </section>
     </div>

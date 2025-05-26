@@ -42,7 +42,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       message: "ok"
     };
   } catch (error) {
-    console.error("Failed to load templates:", error);
     return {
       success: false,
       message: "无法加载模板列表"
@@ -62,7 +61,6 @@ export async function action({ request }: LoaderFunctionArgs) {
       await deleteTemplateDetail({ ids: [templateId], token });
       return { success: true, message: "模板删除成功" };
     } catch (error) {
-      console.error("Failed to delete template:", error);
       return { success: false, message: "删除模板失败" };
     }
   }

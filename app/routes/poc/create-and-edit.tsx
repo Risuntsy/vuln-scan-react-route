@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { AlertCircle, ArrowLeft, Save, Plus } from "lucide-react";
 import { useState } from "react";
 
-import { getToken, } from "#/lib";
+import { cn, getToken, } from "#/lib";
 import { getPocDetail, addPocData, updatePocData } from "#/api/poc/api";
 import { POCS_ROUTE, DASHBOARD_ROUTE } from "#/routes";
 import {
@@ -42,12 +42,12 @@ const formSchema = z.object({
   tags: z.array(z.string()).default([])
 });
 
-// Risk level options
+// Risk level options with updated styles
 const riskLevelOptions = [
-  { value: "高危", label: "高危" },
-  { value: "中危", label: "中危" },
-  { value: "低危", label: "低危" },
-  { value: "信息", label: "信息" }
+  { value: "critical", label: "严重", className: "bg-red-100 text-red-700", selectedClassName: "bg-red-200" },
+  { value: "medium", label: "中危", className: "bg-yellow-100 text-yellow-700", selectedClassName: "bg-yellow-200" },
+  { value: "low", label: "低危", className: "bg-blue-100 text-blue-700", selectedClassName: "bg-blue-200" },
+  { value: "info", label: "信息", className: "bg-gray-100 text-gray-700", selectedClassName: "bg-gray-200" }
 ];
 
 // Placeholder loader function
@@ -65,7 +65,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         isEditMode: true
       };
     } catch (error) {
-      console.error("Failed to load POC data:", error);
       return {
         pocData: null,
         isEditMode: true,
@@ -206,9 +205,13 @@ export default function PocCreateEditPage() {
                       <Button
                         key={option.value}
                         type="button"
-                        variant={form.watch("level") === option.value ? "default" : "outline"}
+                        variant="outline"
                         onClick={() => form.setValue("level", option.value)}
-                        className="flex-1"
+                        className={cn(
+                          "flex-1",
+                          option.className,
+                          form.watch("level") === option.value ? option.selectedClassName : "bg-opacity-50"
+                        )}
                       >
                         {option.label}
                       </Button>

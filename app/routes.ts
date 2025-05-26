@@ -51,8 +51,8 @@ export const CONFIGURATION_ROUTE = "/configuration";
 export const SYSTEM_CONFIGURATION_ROUTE = CONFIGURATION_ROUTE + "/system";
 export const SUBFINDER_CONFIGURATION_ROUTE = CONFIGURATION_ROUTE + "/subfinder";
 export const RAD_CONFIGURATION_ROUTE = CONFIGURATION_ROUTE + "/rad";
-
-const TEMP_STATISTIC_ROUTE = "/temp-statistic";
+export const SCAN_TASK_VULNERABILITY_ROUTE = "/task/:taskName/vulnerabilities";
+export const TEMP_STATISTIC_ROUTE = "/temp-statistic";
 
 const mainRoutes = [
   route(DASHBOARD_ROUTE, "routes/home/dashboard.tsx"),
@@ -81,7 +81,8 @@ const mainRoutes = [
   route(SYSTEM_CONFIGURATION_ROUTE, "routes/configuration/system.tsx"),
   route(SUBFINDER_CONFIGURATION_ROUTE, "routes/configuration/subfinder.tsx"),
   route(RAD_CONFIGURATION_ROUTE, "routes/configuration/rad.tsx"),
-  route(TEMP_STATISTIC_ROUTE, "routes/scan-task/statistic/page.tsx")
+  route(TEMP_STATISTIC_ROUTE, "routes/scan-task/statistic/page.tsx"),
+  route(SCAN_TASK_VULNERABILITY_ROUTE, "routes/scan-task/vulnerability/list.tsx")
 ];
 
 const navLayoutRoutes = layout("layouts/nav-layout.tsx", mainRoutes);

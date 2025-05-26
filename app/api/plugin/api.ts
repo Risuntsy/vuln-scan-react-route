@@ -18,11 +18,15 @@ export async function savePluginData({ token, ...data }: PluginSaveData & BaseRe
 }
 
 export async function deletePluginData({ data, token }: { data: PluginDeleteItem[] } & BaseRequest) {
-  return apiClient.post<CommonMessage>("/plugin/delete", { data }, { headers: { Authorization: token } });
+  return apiClient.post<CommonMessage>("/plugin/delete", { data }, { headers: { Authorization: token }, responseType: "object" });
 }
 
 export async function checkKey({ key, token }: { key: string } & BaseRequest) {
-  return apiClient.post<PluginLog>("/plugin/key/check", { key }, { headers: { Authorization: token } });
+  return apiClient.post<CommonMessage>(
+    "/plugin/key/check",
+    { key },
+    { headers: { Authorization: token }, responseType: "object" }
+  );
 }
 
 export async function getPluginLog({ module, hash, token }: { module: string; hash: string } & BaseRequest) {
@@ -51,7 +55,7 @@ export async function getPluginDataByModule({ module, token }: { module: string 
 
 export async function reInstallPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
   return apiClient.post<CommonMessage>("/plugin/reinstall", data, {
-    headers: { Authorization: token },
+    headers: { Authorization: token }
   });
 }
 
@@ -62,3 +66,12 @@ export async function reCheckPlugin({ token, ...data }: PluginOperationData & Ba
 export async function uninstallPlugin({ token, ...data }: PluginOperationData & BaseRequest) {
   return apiClient.post<CommonMessage>("/plugin/uninstall", data, { headers: { Authorization: token } });
 }
+
+export async function importPlugin({ token, formData, key }: { formData: FormData; key: string } & BaseRequest) {
+  return apiClient.post<CommonMessage>("/plugin/import", formData, {
+    headers: { Authorization: token },
+    params: { key },
+    responseType: "object",
+  });
+}
+

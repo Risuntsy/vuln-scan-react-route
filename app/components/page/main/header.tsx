@@ -9,12 +9,12 @@ import {
 import { SidebarTrigger } from "#/components/";
 import React from "react";
 import { cn } from "#/lib/utils";
-
+import { Link } from "react-router";
 
 export type HeaderRoute = {
   name: string;
   href?: string;
-}
+};
 
 interface HeaderProps {
   routes?: HeaderRoute[];
@@ -22,11 +22,7 @@ interface HeaderProps {
   children?: React.ReactNode;
 }
 
-export function Header({
-  routes,
-  className,
-  children
-}: HeaderProps) {
+export function Header({ routes, className, children }: HeaderProps) {
   return (
     <div className={cn("flex flex-col gap-4 p-4 border-b bg-background pb-1", className)}>
       <div className="flex items-center gap-2">
@@ -39,7 +35,9 @@ export function Header({
                   {index !== 0 && <BreadcrumbSeparator />}
                   <BreadcrumbItem key={index}>
                     {href ? (
-                      <BreadcrumbLink href={href}>{name}</BreadcrumbLink>
+                      <BreadcrumbLink asChild>
+                        <Link to={href}>{name}</Link>
+                      </BreadcrumbLink>
                     ) : (
                       <BreadcrumbPage>{name}</BreadcrumbPage>
                     )}

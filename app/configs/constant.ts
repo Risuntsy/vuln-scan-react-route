@@ -1,1 +1,1 @@
-export const APP_NAME = "ScopeSentry";
+export const APP_NAME = "ASM-Scanner";

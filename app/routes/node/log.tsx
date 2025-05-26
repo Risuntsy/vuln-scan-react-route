@@ -16,7 +16,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const logData = await getNodeLog({ name: nodeName, token });
     return { success: true, logContent: logData?.logs, nodeName };
   } catch (error) {
-    console.error(`Failed to load log for node ${nodeName}:`, error);
     return {
       success: false,
       logContent: "无法加载日志",

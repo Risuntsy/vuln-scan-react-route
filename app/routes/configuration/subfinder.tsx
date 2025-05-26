@@ -17,7 +17,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       message: "ok"
     };
   } catch (error) {
-    console.error("Failed to load subfinder configuration:", error);
     return {
       success: false,
       config: null,
@@ -34,7 +33,6 @@ export async function action({ request }: ActionFunctionArgs) {
     await saveSubfinderConfiguration({ token, content });
     return { success: true, message: "配置更新成功" };
   } catch (error) {
-    console.error("Failed to update configuration:", error);
     return { success: false, message: "更新配置失败" };
   }
 }

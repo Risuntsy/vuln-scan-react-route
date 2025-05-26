@@ -4,7 +4,7 @@ import { Label } from "#/components";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components";
 import { AlertCircle, Lock, User } from "lucide-react";
 import { z } from "zod";
-import { redirect, useActionData } from "react-router";
+import { redirect, useActionData, useFetcher } from "react-router";
 import { Alert, AlertDescription } from "#/components";
 import { login } from "#/api";
 import { tokenCookie, userCookie, getTokenAndUser } from "#/lib";
@@ -39,7 +39,7 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function LoginPage() {
-  const { success, message } = useActionData<typeof action>() || {};
+  const fetcher = useFetcher();
 
   return (
     <div className="flex h-screen w-screen items-center justify-center p-4">
@@ -49,13 +49,13 @@ export default function LoginPage() {
           <CardDescription className="text-center">请输入您的账号和密码登录</CardDescription>
         </CardHeader>
         <CardContent>
-          {!success && message && (
+          {!fetcher.data?.success && fetcher.data?.message && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{message}</AlertDescription>
+              <AlertDescription>{fetcher.data?.message}</AlertDescription>
             </Alert>
           )}
-          <form method="post">
+          <fetcher.Form method="post">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">用户名</Label>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 登录
               </Button>
             </div>
-          </form>
+          </fetcher.Form>
         </CardContent>
       </Card>
     </div>

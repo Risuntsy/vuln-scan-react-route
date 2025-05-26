@@ -60,7 +60,7 @@ export async function deleteTask({ token, ...data }: BaseRequest & { ids: string
 }
 
 export async function retestTask({ token, ...data }: BaseRequest & { id: string }) {
-  return apiClient.post<CommonMessage>("/task/retest", data, { headers: { Authorization: token }, enableLog: true });
+  return apiClient.post<CommonMessage>("/task/retest", data, { headers: { Authorization: token } });
 }
 
 export async function getTaskProgress({

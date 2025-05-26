@@ -4,12 +4,14 @@ import {
   type LoaderFunctionArgs,
   type ActionFunctionArgs,
   useFetcher,
+  useNavigate
 } from "react-router";
 import { getToken } from "#/lib";
 import { getPluginDataByModule, getTemplateDetail, saveTemplateDetail, type PluginData } from "#/api";
 import { DASHBOARD_ROUTE, TEMPLATES_ROUTE } from "#/routes";
 import { Button, Input, Card, Alert, Header, CustomFormField, CustomSwitchOption } from "#/components";
 import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 
 const formDefaultValue = {
   TargetHandler: [],
@@ -25,7 +27,8 @@ const formDefaultValue = {
   URLSecurity: [],
   DirScan: [],
   VulnerabilityScan: [],
-  PassiveScan: []
+  PassiveScan: [],
+  AssetSecurity: []
 };
 
 const parametersDefaultValue: Record<ModuleType, Record<string, string>> = {
@@ -42,7 +45,8 @@ const parametersDefaultValue: Record<ModuleType, Record<string, string>> = {
   URLSecurity: {},
   DirScan: {},
   VulnerabilityScan: {},
-  PassiveScan: {}
+  PassiveScan: {},
+  AssetSecurity: {}
 };
 
 export type ModuleType = keyof typeof formDefaultValue;
@@ -90,10 +94,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         DirScan: string[];
         VulnerabilityScan: string[];
         PassiveScan: string[];
+        AssetSecurity: string[];
       } | null
     };
   } catch (error) {
-    console.error("Failed to load plugins:", error);
     return {
       success: false,
       message: "无法加载插件列表"
@@ -102,21 +106,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const [token, formData] = await Promise.all([getToken(request), request.json()]);
+  const [token, data] = await Promise.all([getToken(request), request.json()]);
 
   try {
     const templateData = {
-      id: formData.id || "",
-      name: formData.name,
-      Parameters: formData.parameters,
-      ...formData.selectedModules,
+      name: data.name,
+      Parameters: data.parameters,
+      ...data.selectedModules,
       vullist: []
     };
 
-    await saveTemplateDetail({ result: templateData, token });
+    await saveTemplateDetail({ result: templateData, id: data.id, token });
     return redirect(TEMPLATES_ROUTE);
   } catch (error) {
-    console.error("Failed to create template:", error);
     return { success: false, message: "创建模板失败" };
   }
 }
@@ -150,6 +152,8 @@ export default function CreateTemplatePage() {
   if (!success || !plugins) {
     return <Alert variant="destructive">{message || "无法加载插件列表"}</Alert>;
   }
+
+  const navigate = useNavigate();
 
   const handlePluginToggle = (moduleName: ModuleType, pluginId: string, checked: boolean) => {
     setSelectedModules(prev => {
@@ -206,11 +210,14 @@ export default function CreateTemplatePage() {
           { name: isEditMode ? "编辑模板" : "新建模板" }
         ]}
       >
-        <div className="flex items-center justify-between w-full">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold">{isEditMode ? "编辑扫描模板" : "新建扫描模板"}</h1>
-            <p className="text-muted-foreground text-sm">配置扫描模板的名称和包含的模块及插件参数</p>
-          </div>
+        <div className="flex">
+        <Button variant="ghost" onClick={() => navigate(-1)}>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold">{isEditMode ? "编辑扫描模板" : "新建扫描模板"}</h1>
+          <p className="text-muted-foreground text-sm">配置扫描模板的名称和包含的模块及插件参数</p>
+        </div>
         </div>
       </Header>
 
@@ -261,6 +268,9 @@ export default function CreateTemplatePage() {
           })}
 
           <div className="flex justify-end space-x-2 pt-4 border-t">
+            <Button variant="outline" onClick={() => navigate(-1)}>
+              取消
+            </Button>
             <Button onClick={handleSubmit}>{isEditMode ? "保存模板" : "创建模板"}</Button>
           </div>
         </div>

@@ -1,129 +1,112 @@
-import { useState, useEffect, useRef, memo } from "react"
-import { nodeData } from "../mock-data"
-// import { Card, CardContent } from "#/components" // Card and CardContent no longer used for individual items
-import { Progress } from "#/components"
 
-const ScanningNodesComponent = () => {
-  const [currentNodes, setCurrentNodes] = useState(nodeData)
-  const itemsContainerRef = useRef<HTMLDivElement>(null) // The inner div that gets translated
-  const [itemScrollHeight, setItemScrollHeight] = useState(0)
-  const animationIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const transitionEndTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+import { nodeData } from "../mock-data";
+import { Progress } from "#/components";
+import { Carousel, CarouselContent, CarouselItem } from "#/components";
+import { cn } from "#/lib/utils";
+import Autoplay from "embla-carousel-autoplay";
+import { memo, useRef } from "react";
 
-  useEffect(() => {
-    if (itemsContainerRef.current && itemsContainerRef.current.children.length > 0 && nodeData.length > 0) {
-      const firstChild = itemsContainerRef.current.children[0] as HTMLElement
-      let height = firstChild.offsetHeight
-      if (nodeData.length > 1 && itemsContainerRef.current.children.length > 1) {
-        const secondChild = itemsContainerRef.current.children[1] as HTMLElement
-        height = secondChild.offsetTop - firstChild.offsetTop
-      } else if (nodeData.length === 1) {
-        // If only one actual item, space-y doesn't apply in the same way for scrolling purpose
-        // but we still need its own height correctly.
-        // The gap is only relevant if there are items to scroll between.
-      } else {
-        // Fallback for single item rendered in list initially for measurement, add typical gap
-        height += 8 // Assuming space-y-2 implies an 8px gap
-      }
-      setItemScrollHeight(height)
-    } else {
-      setItemScrollHeight(0)
-    }
-  }, [nodeData]) // Calculate height based on nodeData, assuming item structure is consistent
+interface ScanningNodesProps {
+  className?: string;
+}
 
-  useEffect(() => {
-    if (animationIntervalRef.current) clearInterval(animationIntervalRef.current)
-    if (transitionEndTimeoutRef.current) clearTimeout(transitionEndTimeoutRef.current)
+const ScanningNodesComponent = ({ className }: ScanningNodesProps) => {
+  const plugin = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: false })
+  );
 
-    if (nodeData.length <= 1 || itemScrollHeight === 0) {
-      if (itemsContainerRef.current) {
-        itemsContainerRef.current.style.transition = "none"
-        itemsContainerRef.current.style.transform = "translateY(0px)"
-      }
-      return
-    }
-
-    animationIntervalRef.current = setInterval(() => {
-      if (!itemsContainerRef.current) return
-      itemsContainerRef.current.style.transition = "transform 0.8s ease-in-out"
-      itemsContainerRef.current.style.transform = `translateY(-${itemScrollHeight}px)`
-
-      transitionEndTimeoutRef.current = setTimeout(() => {
-        setCurrentNodes(prevNodes => {
-          const newNodes = [...prevNodes]
-          const firstNode = newNodes.shift()
-          if (firstNode) newNodes.push(firstNode)
-          return newNodes
-        })
-      }, 800)
-    }, 3000)
-
-    return () => {
-      if (animationIntervalRef.current) clearInterval(animationIntervalRef.current)
-      if (transitionEndTimeoutRef.current) clearTimeout(transitionEndTimeoutRef.current)
-    }
-  }, [nodeData, itemScrollHeight]) // Added nodeData to deps as it influences loop condition
-
-  useEffect(() => {
-    if (itemsContainerRef.current && nodeData.length > 1 && itemScrollHeight > 0) {
-      requestAnimationFrame(() => {
-        if (itemsContainerRef.current) {
-          itemsContainerRef.current.style.transition = "none"
-          itemsContainerRef.current.style.transform = "translateY(0px)"
-        }
-      })
-    }
-  }, [currentNodes, nodeData.length, itemScrollHeight])
-
-  const nodesToRender = [...currentNodes]
-  if (nodeData.length > 1 && itemScrollHeight > 0 && currentNodes.length > 0) {
-    nodesToRender.push(currentNodes[0]) // Add buffer item
+  if (!nodeData || nodeData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full text-slate-400">
+        暂无节点数据
+      </div>
+    );
   }
 
   return (
-    <div className="h-full overflow-hidden relative">
-      <div ref={itemsContainerRef} className="space-y-2">
-        {nodesToRender.map((node, index) => {
-          // Key strategy: actual items use node.id, buffer item gets a distinct key.
-          const isBufferItem = index === currentNodes.length
-          const key = isBufferItem ? `${node.id}-buffer` : node.id
-          return (
-            <div
-              key={key}
-              className="bg-[#0c2d4d] p-3 rounded-sm shadow-md border border-transparent hover:border-blue-600 transition-all duration-150"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <div className="font-semibold text-sky-300">{node.id}</div>
-                <div
-                  className={`text-xs px-2 py-0.5 rounded-sm ${node.status === "online" ? "bg-green-700 text-green-300" : "bg-red-700 text-red-300"}`}
-                >
-                  {node.status === "online" ? "在线" : "离线"}
+    <div className={cn("w-full flex-1 flex flex-col min-h-0", className)}>
+      <Carousel
+        plugins={[plugin.current]}
+        className="w-full h-full"
+        // onMouseEnter={plugin.current.stop}
+        // onMouseLeave={plugin.current.reset}
+        opts={{
+          loop: nodeData.length > 1,
+        }}
+        orientation="vertical"
+      >
+        <CarouselContent className="max-h-full">
+          {nodeData.map((node, index) => (
+            <CarouselItem key={node.id || index} className="basis-auto">
+              <div className="p-1">
+                <div className="bg-gradient-to-br from-[#0a2a47] to-[#0c2d4d] p-4 rounded-lg shadow-lg border border-sky-600/30 hover:border-sky-500/50 transition-colors duration-200">
+                  {/* Header */}
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="font-semibold text-sky-300 truncate pr-2 text-sm">
+                      {node.id}
+                    </div>
+                    <div
+                      className={`text-xs px-2 py-1 rounded-full whitespace-nowrap font-medium ${
+                        node.status === "online" 
+                          ? "bg-green-600/20 text-green-300 border border-green-500/30" 
+                          : "bg-red-600/20 text-red-300 border border-red-500/30"
+                      }`}
+                    >
+                      {node.status === "online" ? "在线" : "离线"}
+                    </div>
+                  </div>
+
+                  {/* Tasks Info */}
+                  <div className="mb-4">
+                    <div className="text-xs text-slate-300">
+                      <span className="text-sky-300">任务数:</span> {node.tasks}
+                    </div>
+                  </div>
+
+                  {/* Resource Usage */}
+                  <div className="space-y-3">
+                    {/* CPU */}
+                    <div>
+                      <div className="flex justify-between items-center text-xs mb-1">
+                        <span className="text-sky-300 font-medium">CPU</span>
+                        <span className="text-slate-300">{node.cpu}%</span>
+                      </div>
+                      <Progress
+                        value={node.cpu}
+                        className="h-2 bg-slate-800/50 border border-sky-700/50 rounded-full overflow-hidden"
+                        indicatorClassName={cn(
+                          "rounded-full transition-all duration-300",
+                          node.cpu > 80 ? "bg-red-400" : 
+                          node.cpu > 60 ? "bg-yellow-400" : "bg-sky-400"
+                        )}
+                      />
+                    </div>
+
+                    {/* Memory */}
+                    <div>
+                      <div className="flex justify-between items-center text-xs mb-1">
+                        <span className="text-sky-300 font-medium">内存</span>
+                        <span className="text-slate-300">{node.memory}%</span>
+                      </div>
+                      <Progress
+                        value={node.memory}
+                        className="h-2 bg-slate-800/50 border border-sky-700/50 rounded-full overflow-hidden"
+                        indicatorClassName={cn(
+                          "rounded-full transition-all duration-300",
+                          node.memory > 80 ? "bg-red-400" : 
+                          node.memory > 60 ? "bg-yellow-400" : "bg-sky-400"
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 gap-1 text-xs text-slate-300">
-                <div>任务: {node.tasks}</div>
-              </div>
-
-              <div className="mt-3 space-y-2">
-                <div className="flex justify-between text-xs mb-0.5 text-sky-300">
-                  <span>CPU</span>
-                  <span>{node.cpu}%</span>
-                </div>
-                <Progress value={node.cpu} className="h-1.5 bg-sky-950/50 border border-sky-700 rounded-full" indicatorClassName="bg-sky-400 rounded-full" />
-
-                <div className="flex justify-between text-xs mb-0.5 text-sky-300">
-                  <span>内存</span>
-                  <span>{node.memory}%</span>
-                </div>
-                <Progress value={node.memory} className="h-1.5 bg-sky-950/50 border border-sky-700 rounded-full" indicatorClassName="bg-sky-400 rounded-full" />
-              </div>
-            </div>
-          )
-        })}
-      </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
     </div>
-  )
-}
+  );
+};
 
-export const ScanningNodes = memo(ScanningNodesComponent)
+export const ScanningNodes = memo(ScanningNodesComponent);

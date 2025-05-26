@@ -70,7 +70,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       message: "ok"
     };
   } catch (error) {
-    console.error("Failed to load fingerprints:", error);
     return {
       success: false,
       fingerprints: [],
@@ -96,7 +95,6 @@ export async function action({ request }: LoaderFunctionArgs) {
       await deleteFingerprintData({ ids: [fingerprintId], token });
       return { success: true, message: "指纹删除成功", action: _action };
     } catch (error) {
-      console.error("Failed to delete fingerprint:", error);
       return { success: false, message: "删除指纹失败", action: _action };
     }
   }
@@ -112,7 +110,6 @@ export async function action({ request }: LoaderFunctionArgs) {
              return { success: true, message: "指纹创建成功", action: _action };
          }
      } catch (error) {
-         console.error("Failed to save fingerprint:", error);
          return { success: false, message: id ? "更新指纹失败" : "创建指纹失败", action: _action };
      }
   }

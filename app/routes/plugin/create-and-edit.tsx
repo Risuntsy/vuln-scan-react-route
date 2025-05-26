@@ -96,8 +96,6 @@ export async function action({ request }: ActionFunctionArgs) {
     return { success: false, message: parseError.errors.map(e => e.message).join(", ") };
   }
 
-  // console.log("Would submit plugin data:", data);
-
   return redirect(PLUGINS_ROUTE);
 }
 

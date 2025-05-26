@@ -1,46 +1,91 @@
-import { componentData } from "../mock-data"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components"
-import { Badge } from "#/components"
-import { memo } from "react"
+import * as React from "react";
+import { componentData } from "../mock-data";
+import { Badge, Progress, type CarouselApi } from "#/components";
+import { Carousel, CarouselContent, CarouselItem } from "#/components";
+import { cn } from "#/lib/utils";
 
-const ComponentTableComponent = () => {
-  const topComponents = componentData.slice(0, 5)
-
-  return (
-    <div className="overflow-x-auto h-full">
-      <Table className="min-w-full">
-        <TableHeader className="bg-[#0c2d4d]">
-          <TableRow>
-            <TableHead className="text-sky-300 px-3 py-2">应用/组件</TableHead>
-            <TableHead className="text-sky-300 text-right px-3 py-2">数量</TableHead>
-            <TableHead className="text-sky-300 text-right px-3 py-2">漏洞</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="divide-y divide-blue-800">
-          {topComponents.map((component, index) => (
-            <TableRow key={index} className={index % 2 === 0 ? "bg-[#071e36] hover:bg-[#0a2540] transition-colors duration-150" : "hover:bg-[#0a2540] transition-colors duration-150"}>
-              <TableCell className="font-medium text-slate-200 px-3 py-2">{component.name}</TableCell>
-              <TableCell className="text-right text-slate-300 px-3 py-2">{component.count}</TableCell>
-              <TableCell className="text-right px-3 py-2">
-                <Badge
-                  variant="outline"
-                  className={`px-2 py-0.5 text-xs rounded-sm border ${
-                    component.vulnerabilities > 20
-                      ? "border-red-600 text-red-400 bg-red-900/30"
-                      : component.vulnerabilities > 10
-                        ? "border-orange-600 text-orange-400 bg-orange-900/30"
-                        : "border-green-600 text-green-400 bg-green-900/30"
-                  }`}
-                >
-                  {component.vulnerabilities}
-                </Badge>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  )
+interface ComponentTableProps {
+  className?: string;
 }
 
-export const ComponentTable = memo(ComponentTableComponent)
+const ComponentTableComponent = ({ className }: ComponentTableProps) => {
+  const [api, setApi] = React.useState<CarouselApi>();
+
+  React.useEffect(() => {
+    if (!api || componentData.length <= 1) return;
+
+    const interval = setInterval(() => {
+      if (api.canScrollNext()) {
+        api.scrollNext();
+      } else {
+        api.scrollTo(0);
+      }
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [api]);
+
+  if (!componentData || componentData.length === 0) {
+    return (
+      <div className={cn("flex items-center justify-center h-full text-slate-400", className)}>
+        暂无组件数据
+      </div>
+    );
+  }
+
+  const itemsToShow = Math.min(5, componentData.length);
+  const basisClass = itemsToShow > 0 ? `basis-1/${itemsToShow}` : "basis-full";
+
+  return (
+    <div className={cn("w-full flex-1 flex flex-col min-h-0", className)}>
+      <div className="grid grid-cols-3 bg-gradient-to-br from-[#0a2a47] to-[#0c2d4d] p-2 rounded-t-lg border-b border-sky-600/30">
+        <div className="font-semibold text-sky-300 text-xs">应用/组件</div>
+        <div className="font-semibold text-sky-300 text-xs text-right">数量</div>
+        <div className="font-semibold text-sky-300 text-xs text-right">漏洞</div>
+      </div>
+
+      <Carousel
+        setApi={setApi}
+        opts={{
+          loop: componentData.length > itemsToShow,
+          align: "start",
+        }}
+        orientation="vertical"
+        className="w-full flex-1 overflow-hidden rounded-b-lg"
+      >
+        <CarouselContent className="h-full -mt-0">
+          {componentData.map((component, index) => (
+            <CarouselItem key={index} className={cn("py-0", basisClass)}>
+              <div className="p-0.5 h-full">
+                <div className={cn(
+                  "grid grid-cols-3 items-center p-2 h-full",
+                  index % 2 === 0 ? "bg-[#071e36]/70" : "bg-[#0c2d4d]/70",
+                  "hover:bg-sky-700/20 transition-colors duration-150"
+                )}>
+                  <div className="font-medium text-slate-200 text-xs truncate pr-2">{component.name}</div>
+                  <div className="text-right text-slate-300 text-xs">{component.count}</div>
+                  <div className="text-right">
+                    <Badge
+                      variant="outline"
+                      className={`px-1.5 py-0.5 text-xs rounded-sm border font-medium ${
+                        component.vulnerabilities > 20
+                          ? "border-red-500 text-red-300 bg-red-700/30"
+                          : component.vulnerabilities > 10
+                            ? "border-orange-500 text-orange-300 bg-orange-700/30"
+                            : "border-green-500 text-green-300 bg-green-700/30"
+                      }`}
+                    >
+                      {component.vulnerabilities}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+    </div>
+  );
+};
+
+export const ComponentTable = React.memo(ComponentTableComponent);

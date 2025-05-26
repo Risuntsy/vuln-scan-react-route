@@ -2,12 +2,14 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } fro
 import { ArrowRight, Network, Code, Bug } from "lucide-react";
 import { ABOUT_ROUTE, LOGIN_ROUTE } from "#/routes";
 import { Link } from "react-router";
+import { APP_NAME } from "#/configs/constant";
+
 
 export default function Index() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-4 sm:p-8 bg-slate-50">
       <div className="max-w-5xl w-full text-center mb-8 sm:mb-12">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">ScopeSentry 分布式安全扫描系统</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">{APP_NAME} 分布式安全扫描系统</h1>
         <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8">基于分布式架构的资产测绘与漏洞检测平台</p>
         <div className="flex flex-wrap justify-center gap-4">
           <Link to={LOGIN_ROUTE}>

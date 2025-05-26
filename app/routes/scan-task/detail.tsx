@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow
 } from "#/components";
-import { SCAN_TASK_ASSETS_ROUTE, SCAN_TASK_STATISTICS_ROUTE } from "#/routes";
+import { SCAN_TASK_ASSETS_ROUTE, SCAN_TASK_STATISTICS_ROUTE, SCAN_TASK_VULNERABILITY_ROUTE } from "#/routes";
 
 import { PortServiceList, ServiceTypeList, StatisticsList, ServiceIconGrid } from "#/components";
 import { CustomPagination } from "#/components";
@@ -78,7 +78,7 @@ function getProgressStatus(times: string[]) {
     return "-";
   }
   times = times.filter(time => time != "");
-  if (times.length === 0) return "未开始";
+  if (times.length === 0) return "-";
   if (times.length === 2) return "已完成";
   return "进行中";
 }
@@ -190,14 +190,23 @@ export default function TaskOverviewPage() {
     <div>
       <ScanTaskHeader taskId={taskId} taskDetail={taskDetail} routes={[{ name: "任务概览" }]}>
         <div className="flex gap-2">
+          <Link to={r(SCAN_TASK_VULNERABILITY_ROUTE, { variables: { taskName: taskDetail.name } })}>
+            <Button variant="outline" className="flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+              <List className="w-4 h-4" />
+              漏洞列表
+            </Button>
+          </Link>
           <Link to={r(SCAN_TASK_STATISTICS_ROUTE, { variables: { taskId } })}>
-            <Button variant="outline">
-              <BarChart className="w-4 h-4 mr-2" />
+            <Button variant="outline" className="flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+              <BarChart className="w-4 h-4" />
               统计信息
             </Button>
           </Link>
           <Link to={r(SCAN_TASK_ASSETS_ROUTE, { variables: { taskId } })}>
-            <Button variant="default">所有资产</Button>
+            <Button variant="default" className="flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+              <Globe className="w-4 h-4" />
+              所有资产
+            </Button>
           </Link>
         </div>
       </ScanTaskHeader>

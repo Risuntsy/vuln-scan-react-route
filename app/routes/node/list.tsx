@@ -58,7 +58,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       message: "ok"
     };
   } catch (error) {
-    console.error("Failed to load nodes:", error);
     return {
       success: false,
       nodes: [],
@@ -78,7 +77,6 @@ export async function action({ request }: LoaderFunctionArgs) {
     await deleteNode({ names: [nodeName], token });
     return { success: true, message: "节点删除成功" };
   } catch (error) {
-    console.error(`Failed to delete node ${nodeName}:`, error);
     return { success: false, message: "节点删除失败" };
   }
 }

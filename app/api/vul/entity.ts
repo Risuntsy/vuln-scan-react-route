@@ -1,10 +1,15 @@
 export interface VulResultData {
   id: string;
   url: string;
-  vulname: string;
-  level: string;
-  time: string;
+  vulnerability: string;
+  vulnid: string;
   matched: string;
+  time: string;
+  request: string;
+  response: string;
+  level: string;
+  status: number;
+  tags: any;
 }
 
 export interface VulSearchData {

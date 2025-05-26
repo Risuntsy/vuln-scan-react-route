@@ -1,32 +1,40 @@
-import { createCookie, redirect } from "react-router";
+import { createCookie, redirect, type Cookie } from "react-router";
 
-export const tokenCookie = createCookie("token", {
+const cookieConfig = {
   maxAge: 604_800
-});
+};
+
+export const tokenCookie = createCookie("token", cookieConfig);
+export const userCookie = createCookie("user", cookieConfig);
+export const pluginKeyCookie = createCookie("pluginKey", cookieConfig);
+
+export async function getCookieValue<T = string>(request: Request, cookie: Cookie): Promise<T | null> {
+  const cookieHeader = request.headers.get("Cookie");
+  const value = (await cookie.parse(cookieHeader)) as T;
+
+  return value;
+}
 
 export async function getToken(request: Request, redirectToLoginWhenMissing = true) {
-  const cookieHeader = request.headers.get("Cookie");
-  const token = (await tokenCookie.parse(cookieHeader)) as string;
-
+  const token = (await getCookieValue<string>(request, tokenCookie)) as string;
   if (!token && redirectToLoginWhenMissing) {
     throw redirect("/login");
   }
   return token;
 }
 
-export const userCookie = createCookie("user", {
-  maxAge: 604_800
-});
-
 export async function getUser(request: Request, redirectToLoginWhenMissing = true) {
-  const cookieHeader = request.headers.get("Cookie");
-  const user = (await userCookie.parse(cookieHeader)) as string;
+  const user = await getCookieValue<string>(request, userCookie);
 
   if (!user && redirectToLoginWhenMissing) {
     tokenCookie.serialize(null, { maxAge: -1 });
     throw redirect("/login");
   }
   return user;
+}
+
+export async function getPluginKey(request: Request) {
+  return getCookieValue<string>(request, pluginKeyCookie);
 }
 
 export async function getTokenAndUser(request: Request) {

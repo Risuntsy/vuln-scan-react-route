@@ -61,6 +61,36 @@ export class ApiClient {
     };
   }
 
+  private shouldSerializeBody(data: any): boolean {
+    return data && 
+           !(data instanceof FormData) && 
+           !(data instanceof ReadableStream) &&
+           !(data instanceof Blob) &&
+           !(data instanceof ArrayBuffer) &&
+           !(data instanceof URLSearchParams);
+  }
+
+  private prepareRequestBody(data: any, method: string): BodyInit | undefined {
+    if (!data || method === "GET") {
+      return undefined;
+    }
+
+    if (this.shouldSerializeBody(data)) {
+      return JSON.stringify(data);
+    }
+
+    return data as BodyInit;
+  }
+
+  private setContentTypeHeader(headers: Record<string, string>, data: any): void {
+    // 如果是FormData、Blob等，让浏览器自动设置Content-Type
+    if (data instanceof FormData || data instanceof Blob) {
+      delete headers["Content-Type"];
+    } else if (this.shouldSerializeBody(data)) {
+      headers["Content-Type"] = "application/json";
+    }
+  }
+
   async request<T>(config: RequestConfig): Promise<T> {
     let processedConfig: RequestConfig = {
       withCredentials: this.config.withCredentials,
@@ -71,6 +101,9 @@ export class ApiClient {
       "Content-Type": "application/json",
       ...(processedConfig.headers || {})
     };
+
+    // 根据数据类型调整Content-Type
+    this.setContentTypeHeader(processedConfig.headers, processedConfig.data);
 
     if (this.config.interceptors?.authRequest && processedConfig.withCredentials) {
       processedConfig = await this.config.interceptors.authRequest(processedConfig);
@@ -88,16 +121,21 @@ export class ApiClient {
       .params(processedConfig.params)
       .build();
 
+    const requestBody = this.prepareRequestBody(processedConfig.data, processedConfig.method);
+
     const fetchOptions: RequestInit = {
       method: processedConfig.method,
       headers: processedConfig.headers,
       credentials: processedConfig.withCredentials ? "include" : "same-origin",
-      body: processedConfig.data && processedConfig.method !== "GET" ? JSON.stringify(processedConfig.data) : undefined
+      body: requestBody
     };
 
     const requestInfo = `
 ${processedConfig.method} ${url}
-request: ${JSON.stringify({ ...fetchOptions, body: processedConfig.data }, null, 2)}
+request: ${JSON.stringify({ 
+  ...fetchOptions, 
+  body: this.shouldSerializeBody(processedConfig.data) ? processedConfig.data : '[Binary Data]'
+}, null, 2)}
 `;
 
     const startTime = performance.now();
@@ -108,8 +146,6 @@ request: ${JSON.stringify({ ...fetchOptions, body: processedConfig.data }, null,
     }
     const endTime = performance.now();
     const duration = endTime - startTime;
-
-    // await sleep(1000);
 
     if (duration > 100) {
       console.warn(`Slow request detected: ${processedConfig.method} ${url} took ${duration.toFixed(2)}ms`);
@@ -165,9 +201,8 @@ request: ${JSON.stringify({ ...fetchOptions, body: processedConfig.data }, null,
     }
 
     serializableMetadata.body = data;
-    delete (fetchOptions as any)._ogBody;
-    fetchOptions.body = processedConfig.data;
     const responseInfo = `response: ${JSON.stringify(serializableMetadata, null, 2)}`;
+    
     if (config.enableLog) {
       console.log(requestInfo);
       console.log(responseInfo);

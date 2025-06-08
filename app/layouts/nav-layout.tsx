@@ -1,8 +1,7 @@
 import { AppSidebar } from "#/components";
 import { menuItems } from "#/routes";
-import { Outlet, redirect, useNavigation, type LoaderFunctionArgs } from "react-router";
+import { Outlet, useNavigation, type LoaderFunctionArgs } from "react-router";
 import { GlobalSpinner } from "#/components";
-import { AIChatButton } from "#/components/custom/ai/ai-chat-button";
 import { getUser } from "#/lib";
 import { useEffect, useState } from "react";
 
@@ -22,11 +21,11 @@ export default function NavLayout({ loaderData }: { loaderData: { user: string }
       setIsLoading(true);
     } else {
       // Add delay before hiding spinner
-      const timer = setTimeout(() => {
+      // const timer = setTimeout(() => {
         setIsLoading(false);
-      }, 200); // 500ms delay
+      // }, 200); // 500ms delay
 
-      return () => clearTimeout(timer);
+      // return () => clearTimeout(timer);
     }
   }, [navigation.state]);
 
@@ -39,7 +38,7 @@ export default function NavLayout({ loaderData }: { loaderData: { user: string }
           <Outlet />
         </div>
 
-        <AIChatButton />
+        {/* <AIChatButton /> */}
       </main>
     </>
   );

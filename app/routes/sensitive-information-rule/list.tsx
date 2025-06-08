@@ -53,7 +53,8 @@ import {
   Select,
   SelectItem,
   SelectContent,
-  SelectValue
+  SelectValue,
+  Textarea
 } from "#/components";
 import { Plus, Pencil, Trash2, Power } from "lucide-react";
 import React, { useState, useEffect } from "react";
@@ -270,7 +271,7 @@ export default function SensitiveRuleListPage() {
                     <Input name="name" value={formData.name} onChange={handleInputChange} required />
                   </CustomFormField>
                   <CustomFormField name="regular" label="规则" required>
-                    <Input name="regular" value={formData.regular} onChange={handleInputChange} required />
+                    <Textarea name="regular" value={formData.regular} onChange={handleInputChange} required rows={3} />
                   </CustomFormField>
                   <CustomFormField name="color" label="颜色">
                     <Select name="color" value={formData.color} onValueChange={(e)=>{

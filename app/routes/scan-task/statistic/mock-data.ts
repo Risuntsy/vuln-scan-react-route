@@ -11,10 +11,10 @@ export const assetData = [
 ]
 
 export const vulnerabilityStats = {
-  total: 876,
-  unconfirmed: 593,
-  fixed: 138,
-  inProgress: 145,
+  total: 10,
+  unconfirmed: 3,
+  fixed: 5,
+  inProgress: 2,
 }
 
 export const vulnerabilityTrendData = [

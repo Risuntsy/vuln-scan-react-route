@@ -6,25 +6,34 @@ interface PanelProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Panel({ children, className, ...props }: PanelProps) {
-  const cornerElClass = "absolute bg-sky-400 w-3 h-[1.5px]";
-  const verticalLineClass = "absolute bg-sky-400 w-[1.5px] h-3";
-
   return (
     <div
-      className={`bg-[#071e36] shadow-lg rounded-none p-3 flex flex-col relative ${className || ''}`}
+      className={`relative bg-gradient-to-br from-[#071e36] via-[#081f37] to-[#061c33] 
+        shadow-lg rounded-lg p-3 flex flex-col
+        border border-sky-500/20 
+        before:absolute before:inset-0 before:rounded-lg 
+        before:bg-gradient-to-br before:from-sky-400/5 before:to-transparent before:pointer-events-none
+        after:absolute after:inset-0 after:rounded-lg 
+        after:shadow-inner after:shadow-sky-900/20 after:pointer-events-none
+        ${className || ''}`}
       {...props}
     >
-      {/* Corner Accent Elements */}
-      <span className={`${cornerElClass} top-0 left-0`}></span>
-      <span className={`${verticalLineClass} top-0 left-0`}></span>
-      <span className={`${cornerElClass} top-0 right-0`}></span>
-      <span className={`${verticalLineClass} top-0 right-0`}></span>
-      <span className={`${cornerElClass} bottom-0 left-0`}></span>
-      <span className={`${verticalLineClass} bottom-0 left-0`}></span>
-      <span className={`${cornerElClass} bottom-0 right-0`}></span>
-      <span className={`${verticalLineClass} bottom-0 right-0`}></span>
+      {/* 科技感装饰线条 */}
+      <div className="absolute top-0 left-4 w-8 h-0.5 bg-gradient-to-r from-sky-400 to-transparent"></div>
+      <div className="absolute top-0 right-4 w-8 h-0.5 bg-gradient-to-l from-sky-400 to-transparent"></div>
+      <div className="absolute bottom-0 left-4 w-8 h-0.5 bg-gradient-to-r from-sky-400 to-transparent"></div>
+      <div className="absolute bottom-0 right-4 w-8 h-0.5 bg-gradient-to-l from-sky-400 to-transparent"></div>
       
-      {children}
+      {/* 角落装饰 */}
+      <div className="absolute top-0 left-0 w-3 h-3 border-l-2 border-t-2 border-sky-400/60 rounded-tl-lg"></div>
+      <div className="absolute top-0 right-0 w-3 h-3 border-r-2 border-t-2 border-sky-400/60 rounded-tr-lg"></div>
+      <div className="absolute bottom-0 left-0 w-3 h-3 border-l-2 border-b-2 border-sky-400/60 rounded-bl-lg"></div>
+      <div className="absolute bottom-0 right-0 w-3 h-3 border-r-2 border-b-2 border-sky-400/60 rounded-br-lg"></div>
+      
+      {/* 内容区域 */}
+      <div className="relative z-10 flex flex-col h-full overflow-hidden">
+        {children}
+      </div>
     </div>
   );
 }

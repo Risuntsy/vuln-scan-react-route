@@ -3,6 +3,7 @@ import { type StatisticsItem } from "#/api";
 import { StatisticsCard } from "./statistics-card";
 import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
 import { Link } from "react-router";
+import { cn } from "#/lib";
 
 export interface GenericStatisticsListProps {
   title: string;
@@ -38,7 +39,7 @@ export function GenericStatisticsList({
   const itemRenderer = renderItem || defaultRenderItem;
 
   return (
-    <StatisticsCard title={title} compact={compact} className={className}>
+    <StatisticsCard title={title} compact={compact} className={cn("max-h-[300px] overflow-y-auto", className)}>
       {data && data.length > 0 ? (
         <div className="space-y-2">
           {data

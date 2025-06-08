@@ -1,7 +1,7 @@
-import { useLoaderData, useSearchParams, type LoaderFunctionArgs, Link, useFetcher, Form } from "react-router";
+import { useLoaderData, useSearchParams, type LoaderFunctionArgs, Link, useFetcher, Form , data} from "react-router";
 import { getToken, getSearchParams, r } from "#/lib";
 import { getPluginData, reInstallPlugin, reCheckPlugin, deletePluginData, checkKey, importPlugin } from "#/api";
-import { getPluginKey } from "#/lib/cookie";
+import { getPluginKey, pluginKeyCookie } from "#/lib/cookie";
 import { DASHBOARD_ROUTE, PLUGIN_EDIT_ROUTE, PLUGIN_LOG_ROUTE } from "#/routes";
 import {
   Button,
@@ -31,7 +31,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
-  Checkbox
+  Checkbox,
+  Badge
 } from "#/components";
 import {
   Plus,
@@ -43,11 +44,12 @@ import {
   Pencil,
   PackageSearch,
   Store,
-  Key
+  Key,
+  Info
 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { successToast, errorToast } from "#/components/custom/toast";
-import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
+import  { useEffect, useRef, useState } from "react";
+import { successToast, errorToast } from "#/components";
+import { EmptyPlaceholder } from "#/components";
 import type { CheckedState } from "@radix-ui/react-checkbox";
 
 const PAGE_SIZES = [10, 20, 50];
@@ -120,7 +122,9 @@ export async function action({ request }: LoaderFunctionArgs) {
 
     try {
       const result = await checkKey({ key, token });
-      return { success: true, message: result.message || "插件密钥验证成功" };
+      return data({ success: true, message: result.message || "插件密钥验证成功" }, { status: 200, headers: {
+        "Set-Cookie": await pluginKeyCookie.serialize(key)
+      }});
     } catch (error) {
       return { success: false, message: "插件密钥验证失败" };
     }
@@ -226,21 +230,23 @@ export default function PluginListPage() {
     return <Alert variant="destructive">{message}</Alert>;
   }
 
-  const isAllSelected = selectedRows.length === plugins.filter(p => !p.isSystem).length;
+  const nonSystemPlugins = plugins.filter(p => !p.isSystem);
+  const isAllSelected = selectedRows.length === nonSystemPlugins.length && nonSystemPlugins.length > 0;
   const isIndeterminate = selectedRows.length > 0 && !isAllSelected;
 
-  const handleSelectAll = (checked: boolean) => {
+  const handleSelectAll = (checked: CheckedState) => {
+    if (checked === "indeterminate") return;
+    
     if (checked) {
-      setSelectedRows(plugins.filter(p => !p.isSystem).map(p => p.id));
+      setSelectedRows(nonSystemPlugins.map(p => p.id));
     } else {
       setSelectedRows([]);
     }
   };
 
   const handleSelectRow = (pluginId: string, checked: CheckedState) => {
-    if(checked === "indeterminate") {
-      throw new Error("what the fuck");
-    }
+    if (checked === "indeterminate") return;
+    
     if (checked) {
       setSelectedRows(prev => [...prev, pluginId]);
     } else {
@@ -380,15 +386,18 @@ export default function PluginListPage() {
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="w-10">
+                    <TableHead className="w-12 p-2">
                       <Checkbox
-                        checked={isAllSelected}
+                        checked={isAllSelected ? true : isIndeterminate ? "indeterminate" : false}
                         onCheckedChange={handleSelectAll}
+                        disabled={nonSystemPlugins.length === 0}
                       />
                     </TableHead>
                     <TableHead>插件名称</TableHead>
                     <TableHead>模块</TableHead>
                     <TableHead>版本</TableHead>
+                    <TableHead>参数</TableHead>
+                    <TableHead>简介</TableHead>
                     <TableHead>系统插件</TableHead>
                     <TableHead className="w-[300px] text-right">操作</TableHead>
                   </TableRow>
@@ -396,16 +405,47 @@ export default function PluginListPage() {
                 <TableBody>
                   {plugins.map(plugin => (
                     <TableRow key={plugin.id}>
-                      <TableCell>
+                      <TableCell className="p-2">
                         <Checkbox
                           checked={selectedRows.includes(plugin.id)}
                           onCheckedChange={checked => handleSelectRow(plugin.id, checked)}
                           disabled={plugin.isSystem}
                         />
                       </TableCell>
-                      <TableCell className="font-medium">{plugin.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {plugin.name}
+                          {plugin.introduction && (
+                            <span className="ml-1">
+                              <Badge variant="secondary" className="text-xs px-1 py-0.5">{plugin.introduction}</Badge>
+                            </span>
+                          )}
+                        </div>
+                        {plugin.help && (
+                          <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                            <Info className="w-3 h-3" />
+                            <span>{plugin.help}</span>
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell>{plugin.module}</TableCell>
                       <TableCell>{plugin.version}</TableCell>
+                      <TableCell>
+                        {plugin.parameter ? (
+                          <span className="break-all text-xs font-mono bg-muted px-2 py-1 rounded">
+                            {plugin.parameter}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">无</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {plugin.introduction ? (
+                          <span className="text-xs">{plugin.introduction}</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>{plugin.isSystem ? "是" : "否"}</TableCell>
                       <TableCell className="text-right space-x-2">
                         <Button

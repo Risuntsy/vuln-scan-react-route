@@ -76,7 +76,7 @@ export function LogViewer({
           <CardContent className="flex-1 overflow-hidden">
             <div className="h-full overflow-auto bg-muted p-4 rounded-lg">
               <pre className="whitespace-pre-wrap font-mono text-sm">
-                {logContent || "暂无日志记录"}
+                {logContent?.split("\n").reverse().join("\n").trim() || "暂无日志记录"}
               </pre>
             </div>
           </CardContent>

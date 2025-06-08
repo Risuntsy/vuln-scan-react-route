@@ -43,7 +43,8 @@ export async function startTask({ token, ...data }: BaseRequest & { id: string }
 
 export async function addTask({ token, ...data }: BaseRequest & AddTaskRequest) {
   return apiClient.post<CommonMessage>("/task/add", data, {
-    headers: { Authorization: token }
+    headers: { Authorization: token },
+    // enableLog: true
   });
 }
 

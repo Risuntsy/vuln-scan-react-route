@@ -47,13 +47,13 @@ const overviewItems = [
     description: "是否为定时任务",
     format: (detail: TaskDetail) => (detail.scheduledTasks ? "是" : "否")
   },
-  {
-    title: "执行时间",
-    value: "hour",
-    icon: Clock,
-    description: "定时执行时间（小时）",
-    format: (detail: TaskDetail) => (detail.scheduledTasks ? `${detail.hour}:00` : "-")
-  }
+  // {
+  //   title: "执行时间",
+  //   value: "hour",
+  //   icon: Clock,
+  //   description: "定时执行时间（小时）",
+  //   format: (detail: TaskDetail) => (detail.scheduledTasks ? `${detail.hour}:00` : "-")
+  // }
 ] as const;
 
 const progressItems: { key: keyof TaskProgessInfo; label: string }[] = [
@@ -72,6 +72,12 @@ const progressItems: { key: keyof TaskProgessInfo; label: string }[] = [
   { key: "VulnerabilityScan", label: "漏洞扫描" },
   { key: "PassiveScan", label: "被动扫描" }
 ] as const;
+
+// 工具函数：截断字符串到指定长度，超出部分用省略号
+function truncateStr(str: string, max: number) {
+  if (!str) return "";
+  return str.length > max ? str.slice(0, max) + "…" : str;
+}
 
 function getProgressStatus(times: string[]) {
   if (!times) {
@@ -261,7 +267,9 @@ export default function TaskOverviewPage() {
                 <TableBody>
                   {taskProgress.map((progress: TaskProgessInfo, index: number) => (
                     <TableRow key={index}>
-                      <TableCell className="font-mono">{progress.target}</TableCell>
+                      <TableCell className="font-mono" title={progress.target}>
+                        {truncateStr(progress.target, 10)}
+                      </TableCell>
                       <TableCell>{progress.node}</TableCell>
                       {progressItems.map(({ key }) => {
                         const times = progress[key] as string[];

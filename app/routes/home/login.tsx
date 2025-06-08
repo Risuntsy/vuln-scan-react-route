@@ -4,12 +4,11 @@ import { Label } from "#/components";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components";
 import { AlertCircle, Lock, User } from "lucide-react";
 import { z } from "zod";
-import { redirect, useActionData, useFetcher } from "react-router";
+import { redirect, useActionData, useFetcher, type LoaderFunctionArgs, type ActionFunctionArgs } from "react-router";
 import { Alert, AlertDescription } from "#/components";
 import { login } from "#/api";
 import { tokenCookie, userCookie, getTokenAndUser } from "#/lib";
 import { DASHBOARD_ROUTE } from "#/routes";
-import type { Route } from "./+types/login";
 import { APP_NAME } from "#/configs";
 
 const loginSchema = z.object({
@@ -18,14 +17,14 @@ const loginSchema = z.object({
   redirect: z.string().optional()
 });
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const { token, user } = await getTokenAndUser(request);
   if (token && user) {
     return redirect(DASHBOARD_ROUTE);
   }
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const { success, data, error } = loginSchema.safeParse(Object.fromEntries(await request.formData()));
   if (!success) return { success: false, message: error.message };
   const { token, message } = await login(data);

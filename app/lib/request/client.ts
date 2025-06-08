@@ -92,6 +92,7 @@ export class ApiClient {
   }
 
   async request<T>(config: RequestConfig): Promise<T> {
+    // await sleep(Math.random() * 1000 + 500)
     let processedConfig: RequestConfig = {
       withCredentials: this.config.withCredentials,
       ...config

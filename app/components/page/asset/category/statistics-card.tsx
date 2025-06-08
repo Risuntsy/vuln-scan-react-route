@@ -9,12 +9,13 @@ interface StatisticsCardProps {
 }
 
 export function StatisticsCard({ title, children, compact, className }: StatisticsCardProps) {
+  // 优化间距：header和content都用更紧凑的padding
   return (
     <Card className={cn("overflow-hidden", className)}>
-      <CardHeader className={cn("pb-2", compact && "py-3")}>
+      <CardHeader className={cn("py-2", compact && "py-1")}>
         <CardTitle className="text-md font-medium">{title}</CardTitle>
       </CardHeader>
-      <CardContent className={cn(compact && "py-3")}>
+      <CardContent className={cn("py-2", compact && "py-1")}>
         {children}
       </CardContent>
     </Card>

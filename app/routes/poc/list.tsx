@@ -24,7 +24,8 @@ import {
   AlertDialogTrigger,
   PaginationControls,
   Input,
-  Badge
+  Badge,
+  Checkbox
 } from "#/components";
 import { Plus, Upload, Trash2, Pencil, FileSearch } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -128,6 +129,14 @@ export default function PocListPage() {
     });
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedPocs(new Set(pocs.map(poc => poc.id)));
+    } else {
+      setSelectedPocs(new Set());
+    }
+  };
+
   const handleDeleteSelected = () => {
     if (selectedPocs.size > 0) {
       fetcher.submit(
@@ -166,11 +175,13 @@ export default function PocListPage() {
     );
   };
 
+  const allSelected = selectedPocs.size === pocs.length && pocs.length > 0;
+
   return (
     <div className="flex flex-1 flex-col h-full">
       <Header routes={[{ name: "Dashboard", href: DASHBOARD_ROUTE }, { name: "POC管理" }]}>
-        <div className="flex items-center justify-between w-full">
-          <div>
+        <div className="flex flex-col sm:flex-row md:items-center md:justify-between w-full">
+          <div className="flex gap-2">
             <h1 className="text-xl sm:text-2xl font-bold">POC管理</h1>
             <p className="text-muted-foreground text-sm">管理漏洞扫描POC</p>
           </div>
@@ -191,23 +202,31 @@ export default function PocListPage() {
 
       <Card className="flex flex-1 overflow-hidden m-6 p-2">
         <div className="flex flex-col flex-1">
-          <div className="flex justify-between items-center mb-4">
-            <Form className="flex gap-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+            <Form className="flex flex-col sm:flex-row gap-2 flex-1 md:justify-between">
               <Input
                 type="text"
                 placeholder="搜索POC名称或标签..."
                 defaultValue={search}
                 name="search"
-                className="w-[300px]"
+                className="w-full sm:w-[300px]"
               />
-              <Button type="submit">搜索</Button>
-            </Form>
-            <div>
-              <Button variant="destructive" onClick={handleDeleteSelected} disabled={selectedPocs.size === 0}>
+              <div className="flex flex-row gap-2">
+                <Button type="submit" className="sm:w-auto flex-1/2">
+                  <FileSearch className="w-4 h-4 mr-2" />
+                  搜索
+                </Button>
+                <Button 
+                variant="destructive" 
+                onClick={handleDeleteSelected} 
+                disabled={selectedPocs.size === 0}
+                className="sm:w-auto flex-1/2"
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 删除选中
               </Button>
-            </div>
+              </div>
+            </Form>
           </div>
 
           <div className="flex-1 overflow-auto">
@@ -215,17 +234,11 @@ export default function PocListPage() {
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="w-1/12">
-                      <input
-                        type="checkbox"
-                        onChange={e => {
-                          if (e.target.checked) {
-                            setSelectedPocs(new Set(pocs.map(poc => poc.id)));
-                          } else {
-                            setSelectedPocs(new Set());
-                          }
-                        }}
-                        checked={selectedPocs.size === pocs.length}
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={allSelected}
+                        onCheckedChange={checked => handleSelectAll(!!checked)}
+                        aria-label="全选"
                       />
                     </TableHead>
                     <TableHead className="w-1/4">POC名称</TableHead>
@@ -239,10 +252,10 @@ export default function PocListPage() {
                   {pocs.map((poc: PocData) => (
                     <TableRow key={poc.id}>
                       <TableCell className="py-4">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={selectedPocs.has(poc.id)}
-                          onChange={() => toggleSelectPoc(poc.id)}
+                          onCheckedChange={checked => toggleSelectPoc(poc.id)}
+                          aria-label={`选择POC ${poc.name}`}
                         />
                       </TableCell>
                       <TableCell className="font-medium py-4">{poc.name}</TableCell>

@@ -1,3 +1,4 @@
+import { checkKey } from "#/api";
 import { createCookie, redirect, type Cookie } from "react-router";
 
 const cookieConfig = {
@@ -34,7 +35,11 @@ export async function getUser(request: Request, redirectToLoginWhenMissing = tru
 }
 
 export async function getPluginKey(request: Request) {
-  return getCookieValue<string>(request, pluginKeyCookie);
+  // const token = await getToken(request);
+  const pluginKey = getCookieValue<string>(request, pluginKeyCookie);
+  // if(!pluginKey) 
+  // await checkKey({key: pluginKey, token})
+  return pluginKey; 
 }
 
 export async function getTokenAndUser(request: Request) {

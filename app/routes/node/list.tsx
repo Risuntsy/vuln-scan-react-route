@@ -1,4 +1,4 @@
-import { useLoaderData, Link, useFetcher } from "react-router";
+import { useLoaderData, Link, useFetcher, useRevalidator } from "react-router";
 import { getToken, r } from "#/lib";
 import { getNodeData, deleteNode } from "#/api/node/api";
 import { DASHBOARD_ROUTE, NODE_PLUGINS_ROUTE, NODE_LOG_ROUTE } from "#/routes";
@@ -25,7 +25,7 @@ import {
   Badge
 } from "#/components";
 import { Plug, FileText, Trash2, Server } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { successToast, errorToast } from "#/components/custom/toast";
 import type { LoaderFunctionArgs } from "react-router";
 import { EmptyPlaceholder } from "#/components/custom/sundry/empty-placeholder";
@@ -44,7 +44,7 @@ function getNodeStateText(state: string): string {
     case '2':
       return '已停止';
     default:
-      return '错误';
+      return '离线';
   }
 }
 
@@ -67,14 +67,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: LoaderFunctionArgs) {
-  const [{ nodeName, _action }, token] = await Promise.all([request.json(), getToken(request)]);
+  const [body, token] = await Promise.all([request.json(), getToken(request)]);
+  const { nodeName, nodeNames, _action } = body;
 
-  if (!nodeName || _action !== "delete") {
+  if (_action !== "delete") {
+    return { success: false, message: "缺少必要参数或无效操作" };
+  }
+
+  // 支持单个和多个
+  const names = nodeNames && Array.isArray(nodeNames) && nodeNames.length > 0
+    ? nodeNames
+    : nodeName
+      ? [nodeName]
+      : [];
+
+  if (names.length === 0) {
     return { success: false, message: "缺少必要参数或无效操作" };
   }
 
   try {
-    await deleteNode({ names: [nodeName], token });
+    await deleteNode({ names, token });
     return { success: true, message: "节点删除成功" };
   } catch (error) {
     return { success: false, message: "节点删除失败" };
@@ -85,10 +97,45 @@ export default function NodeListPage() {
   const { nodes, success, message } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
 
+  // 多选状态
+  const [selected, setSelected] = useState<string[]>([]);
+  const allNodeNames = useMemo(() => nodes?.map(n => n.name) ?? [], [nodes]);
+  const allSelected = selected.length > 0 && selected.length === allNodeNames.length;
+
+  // 处理全选/全不选
+  const handleSelectAll = (checked: boolean) => {
+    setSelected(checked ? allNodeNames : []);
+  };
+
+  // 处理单个选择
+  const handleSelectOne = (name: string, checked: boolean) => {
+    setSelected(prev =>
+      checked ? [...prev, name] : prev.filter(n => n !== name)
+    );
+  };
+
+  // 删除多选
+  const handleBatchDelete = () => {
+    if (selected.length === 0) return;
+    fetcher.submit(
+      { nodeNames: selected, _action: "delete" },
+      { method: "post", encType: "application/json" }
+    );
+  };
+
+  // 删除单个
+  const handleDeleteOne = (name: string) => {
+    fetcher.submit(
+      { nodeName: name, _action: "delete" },
+      { method: "post", encType: "application/json" }
+    );
+  };
+
   useEffect(() => {
     if (fetcher.data) {
       if (fetcher.data.success) {
         successToast(fetcher.data.message);
+        setSelected([]); // 删除后清空选择
       } else {
         errorToast(fetcher.data.message);
       }
@@ -98,6 +145,19 @@ export default function NodeListPage() {
   if (!success) {
     return <Alert variant="destructive">{message}</Alert>;
   }
+  const revalidate = useRevalidator();
+  useEffect(() => {
+    let cancelled = false;
+    const chainRevalidate = async () => {
+      if (cancelled) return;
+      await revalidate.revalidate();
+      setTimeout(chainRevalidate, 5000);
+    };
+    chainRevalidate();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="flex flex-1 flex-col h-full">
@@ -106,6 +166,39 @@ export default function NodeListPage() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">节点管理</h1>
             <p className="text-muted-foreground text-sm">管理扫描节点</p>
+          </div>
+          <div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="ml-2"
+                  disabled={selected.length === 0 || fetcher.state !== "idle"}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  批量删除
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>确认批量删除</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    确定要删除选中的 {selected.length} 个节点吗？此操作无法撤销。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>取消</AlertDialogCancel>
+                  <Button
+                    variant="destructive"
+                    onClick={handleBatchDelete}
+                    disabled={fetcher.state !== "idle"}
+                  >
+                    {fetcher.state !== "idle" ? <span className="animate-spin">加载中</span> : "删除"}
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </Header>
@@ -117,7 +210,14 @@ export default function NodeListPage() {
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="w-[50px]"><Checkbox /></TableHead>
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={allSelected}
+                        // indeterminate={selected.length > 0 && !allSelected}
+                        onCheckedChange={checked => handleSelectAll(!!checked)}
+                        aria-label="全选"
+                      />
+                    </TableHead>
                     <TableHead>节点名称</TableHead>
                     <TableHead>最大任务数量</TableHead>
                     <TableHead>任务数量</TableHead>
@@ -132,7 +232,13 @@ export default function NodeListPage() {
                 <TableBody>
                   {nodes.map(node => (
                     <TableRow key={node.name}>
-                      <TableCell><Checkbox /></TableCell>
+                      <TableCell>
+                        <Checkbox
+                          checked={selected.includes(node.name)}
+                          onCheckedChange={checked => handleSelectOne(node.name, !!checked)}
+                          aria-label={`选择节点 ${node.name}`}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{node.name}</TableCell>
                       <TableCell>
                         <Badge variant="outline">{node.maxTaskNum || "N/A"}</Badge>
@@ -187,12 +293,7 @@ export default function NodeListPage() {
                               <AlertDialogCancel>取消</AlertDialogCancel>
                               <Button
                                 variant="destructive"
-                                onClick={() =>
-                                  fetcher.submit(
-                                    { nodeName: node.name, _action: "delete" },
-                                    { method: "post", encType: "application/json" }
-                                  )
-                                }
+                                onClick={() => handleDeleteOne(node.name)}
                                 disabled={fetcher.state !== "idle"}
                               >
                                 {fetcher.state !== "idle" ? <span className="animate-spin">加载中</span> : "删除"}

@@ -13,7 +13,7 @@ import { ASSET_ROUTE } from "#/routes";
 
 type AssetListItemProps = AssetData;
 
-// 资产标签组件
+// 标签组件
 function AssetTags({
   tags,
   onRemove,

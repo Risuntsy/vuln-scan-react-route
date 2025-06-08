@@ -34,7 +34,9 @@ import {
   Label,
   Switch,
   CustomFormField,
-  DialogDescription
+  DialogDescription,
+  Textarea,
+  Checkbox
 } from "#/components";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import React, { useState, useEffect } from "react";
@@ -126,6 +128,7 @@ export default function FingerprintListPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState<FingerprintAddData & { id?: string }>(initialFormData);
   const [formError, setFormError] = useState<string | null>(null);
+  const [selectedFingerprints, setSelectedFingerprints] = useState<Set<string>>(new Set());
 
   const { fingerprints, total, pageIndex, pageSize, search, success, message } = initialData;
 
@@ -178,9 +181,36 @@ export default function FingerprintListPage() {
     });
   };
 
+  const toggleSelectFingerprint = (id: string) => {
+    setSelectedFingerprints(prev => {
+      const newSelected = new Set(prev);
+      if (newSelected.has(id)) {
+        newSelected.delete(id);
+      } else {
+        newSelected.add(id);
+      }
+      return newSelected;
+    });
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedFingerprints(new Set(fingerprints.map(fp => fp.id)));
+    } else {
+      setSelectedFingerprints(new Set());
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    // TODO: 实现批量删除功能
+    console.log("删除选中的指纹:", Array.from(selectedFingerprints));
+  };
+
   if (!success && fingerprints.length === 0) {
     return <Alert variant="destructive">{message}</Alert>;
   }
+
+  const allSelected = selectedFingerprints.size === fingerprints.length && fingerprints.length > 0;
 
   return (
     <div className="flex flex-1 flex-col h-full">
@@ -195,52 +225,60 @@ export default function FingerprintListPage() {
                <Input name="search" placeholder="搜索名称或规则..." defaultValue={search} className="w-full sm:w-64"/>
                <Button type="submit">搜索</Button>
              </Form>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto">
-                  <Plus className="w-4 h-4 mr-2" />
-                  新建指纹
+            <div className="flex gap-2">
+              {selectedFingerprints.size > 0 && (
+                <Button variant="destructive" onClick={handleDeleteSelected}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  删除选中 ({selectedFingerprints.size})
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader>
-                  <DialogTitle>{formData.id ? "编辑指纹" : "新建指纹"}</DialogTitle>
-                  <DialogDescription/>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                   {formError && <Alert variant="destructive">{formError}</Alert>}
-                  <CustomFormField name="name" label="名称" required>
-                    <Input name="name" value={formData.name} onChange={handleInputChange} required />
-                  </CustomFormField>
-                  <CustomFormField name="rule" label="规则" required>
-                    <Input name="rule" value={formData.rule} onChange={handleInputChange} required/>
-                  </CustomFormField>
-                  <CustomFormField name="category" label="类型">
-                    <Input name="category" value={formData.category} onChange={handleInputChange} />
-                  </CustomFormField>
-                  <CustomFormField name="parent_category" label="归类">
-                    <Input name="parent_category" value={formData.parent_category} onChange={handleInputChange} />
-                  </CustomFormField>
-                  <CustomFormField name="state" label="状态" className="items-center">
-                    <Switch
-                        id="state"
-                        name="state"
-                        checked={formData.state}
-                        onCheckedChange={handleSwitchChange}
-                    />
-                    <Label htmlFor="state" className="ml-2">{formData.state ? "启用" : "禁用"}</Label>
-                  </CustomFormField>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                     <Button variant="outline">取消</Button>
-                  </DialogClose>
-                  <Button onClick={handleSubmit} disabled={fetcher.state !== "idle"}>
-                    {fetcher.state !== "idle" && fetcher.data?.action === 'save' ? "保存中..." : "保存"}
+              )}
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto">
+                    <Plus className="w-4 h-4 mr-2" />
+                    新建指纹
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>{formData.id ? "编辑指纹" : "新建指纹"}</DialogTitle>
+                    <DialogDescription/>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                     {formError && <Alert variant="destructive">{formError}</Alert>}
+                    <CustomFormField name="name" label="名称" required>
+                      <Input name="name" value={formData.name} onChange={handleInputChange} required />
+                    </CustomFormField>
+                    <CustomFormField name="rule" label="规则" required>
+                      <Textarea name="rule" value={formData.rule} onChange={handleInputChange} required rows={3}/>
+                    </CustomFormField>
+                    <CustomFormField name="category" label="类型">
+                      <Input name="category" value={formData.category} onChange={handleInputChange} />
+                    </CustomFormField>
+                    <CustomFormField name="parent_category" label="归类">
+                      <Input name="parent_category" value={formData.parent_category} onChange={handleInputChange} />
+                    </CustomFormField>
+                    <CustomFormField name="state" label="状态" className="items-center">
+                      <Switch
+                          id="state"
+                          name="state"
+                          checked={formData.state}
+                          onCheckedChange={handleSwitchChange}
+                      />
+                      <Label htmlFor="state" className="ml-2">{formData.state ? "启用" : "禁用"}</Label>
+                    </CustomFormField>
+                  </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                       <Button variant="outline">取消</Button>
+                    </DialogClose>
+                    <Button onClick={handleSubmit} disabled={fetcher.state !== "idle"}>
+                      {fetcher.state !== "idle" && fetcher.data?.action === 'save' ? "保存中..." : "保存"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
       </Header>
@@ -255,6 +293,13 @@ export default function FingerprintListPage() {
           <Table className="h-full">
             <TableHeader className="sticky top-0 bg-background z-10">
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="全选"
+                  />
+                </TableHead>
                 <TableHead className="w-[200px]">名称</TableHead>
                 <TableHead>规则</TableHead>
                 <TableHead className="w-[150px]">类型</TableHead>
@@ -268,6 +313,13 @@ export default function FingerprintListPage() {
                 fingerprints.map(fp => (
                   <React.Fragment key={fp.id}>
                     <TableRow>
+                      <TableCell className="py-4">
+                        <Checkbox
+                          checked={selectedFingerprints.has(fp.id)}
+                          onCheckedChange={checked => toggleSelectFingerprint(fp.id)}
+                          aria-label={`选择指纹 ${fp.name}`}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium max-w-[200px] truncate">{fp.name}</TableCell>
                       <TableCell className="max-w-[400px] truncate" title={fp.rule}>{fp.rule}</TableCell>
                       <TableCell className="max-w-[150px] truncate">{fp.category}</TableCell>
@@ -315,7 +367,7 @@ export default function FingerprintListPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                     {search ? `没有找到 "${search}" 相关的指纹信息。`: "没有找到指纹信息。"}
                   </TableCell>
                 </TableRow>

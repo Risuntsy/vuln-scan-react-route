@@ -11,11 +11,6 @@ import { deleteTask, getTaskData, retestTask, startTask, stopTask } from "#/api"
 import {
   Input,
   Button,
-  Card,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -56,6 +51,7 @@ import {
 import { DASHBOARD_ROUTE, SCAN_TASK_CREATE_ROUTE, SCAN_TASK_REPORT_ROUTE, SCAN_TASK_ROUTE } from "#/routes";
 import { cn, getSearchParams, getToken, r } from "#/lib";
 import { useEffect, useState } from "react";
+
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const token = await getToken(request);
@@ -262,28 +258,28 @@ export default function ScanTasksPage() {
       <Header routes={[{ name: "Dashboard", href: DASHBOARD_ROUTE }, { name: "扫描任务" }]}>
         <div className="flex items-center gap-2 justify-between w-full">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">扫描任务</h1>
-            <p className="text-muted-foreground text-sm">管理所有扫描任务</p>
+            <h1 className="text-lg sm:text-xl font-bold">扫描任务</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm">管理所有扫描任务</p>
           </div>
           <Link to={SCAN_TASK_CREATE_ROUTE}>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              新建扫描任务
+            <Button size="sm" className="h-8 px-3">
+              <Plus className="w-4 h-4 mr-1" />
+              新建
             </Button>
           </Link>
         </div>
       </Header>
 
-      <div className="h-full p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b pb-4">
-          <div className="relative w-full sm:w-auto max-w-[250px]">
+      <div className="h-full p-2 sm:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 border-b pb-2">
+          <div className="relative w-full sm:w-auto max-w-[200px]">
             <Form role="search" method="get">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 name="search"
                 placeholder="搜索任务..."
-                className="pl-8"
+                className="pl-7 h-8 text-sm"
                 onChange={e => {
                   if (e.target.value === "") {
                     setSearchParams(prev => {
@@ -296,9 +292,9 @@ export default function ScanTasksPage() {
               />
             </Form>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground whitespace-nowrap">每页显示:</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">每页:</span>
               <Select
                 defaultValue={pageSize.toString()}
                 onValueChange={value =>
@@ -309,23 +305,23 @@ export default function ScanTasksPage() {
                   })
                 }
               >
-                <SelectTrigger className="w-[70px] h-9">
-                  <SelectValue placeholder="每页行数" />
+                <SelectTrigger className="w-[72px] h-8 text-xs">
+                  <SelectValue placeholder="行数" />
                 </SelectTrigger>
                 <SelectContent>
                   {PAGE_SIZES.map(s => (
-                    <SelectItem key={s} value={s.toString()}>
+                    <SelectItem key={s} value={s.toString()} className="text-xs">
                       {s}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-2 sm:border-l sm:pl-4">
+            <div className="flex items-center gap-1 sm:border-l sm:pl-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-7 w-7"
                 onClick={() =>
                   setSearchParams(prev => {
                     prev.set("pageIndex", (pageIndex - 1).toString());
@@ -336,13 +332,13 @@ export default function ScanTasksPage() {
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm text-muted-foreground whitespace-nowrap">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
                 {pageIndex}/{Math.ceil(total / pageSize)}页
               </span>
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className="h-7 w-7"
                 onClick={() =>
                   setSearchParams(prev => {
                     prev.set("pageIndex", (pageIndex + 1).toString());
@@ -359,180 +355,127 @@ export default function ScanTasksPage() {
 
         {/* 批量操作栏 */}
         {tasks.length > 0 && (
-          <div className="flex items-center justify-between gap-4 mb-4 p-3 bg-muted/50 rounded-lg">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-2 mb-2 p-2 bg-muted/40 rounded">
+            <div className="flex items-center gap-2">
               <Checkbox
                 checked={selectedTasks.length === tasks.length}
                 onCheckedChange={handleSelectAll}
                 className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
-              <span className="text-sm text-muted-foreground">
-                {selectedTasks.length > 0 ? `已选择 ${selectedTasks.length} 个任务` : "全选"}
+              <span className="text-xs text-muted-foreground">
+                {selectedTasks.length > 0 ? `已选 ${selectedTasks.length}` : "全选"}
               </span>
             </div>
             {selectedTasks.length > 0 && (
               <Button
                 variant="destructive"
                 size="sm"
+                className="h-7 px-2 text-xs"
                 onClick={() => setShowBatchDeleteDialog(true)}
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                批量删除 ({selectedTasks.length})
+                <Trash2 className="w-4 h-4 mr-1" />
+                删除({selectedTasks.length})
               </Button>
             )}
           </div>
         )}
 
         {tasks.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            {tasks.map(task => {
-              const statusKey = getStatus(task.progress, task.status);
-              const statusInfo = STATUS_BADGES[statusKey];
-              const isSelected = selectedTasks.includes(task.id);
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-xs sm:text-sm border rounded-lg bg-background">
+              <thead>
+                <tr className="bg-muted/60">
+                  <th className="p-2 text-left w-8">
+                    <Checkbox
+                      checked={selectedTasks.length === tasks.length}
+                      onCheckedChange={handleSelectAll}
+                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    />
+                  </th>
+                  <th className="p-2 text-left">任务名称</th>
+                  <th className="p-2 text-center">数量</th>
+                  <th className="p-2 text-center">状态</th>
+                  <th className="p-2 text-center">进度</th>
+                  <th className="p-2 text-center">创建时间</th>
+                  <th className="p-2 text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tasks.map(task => {
+                  const statusKey = getStatus(task.progress, task.status);
+                  const statusInfo = STATUS_BADGES[statusKey];
+                  const isSelected = selectedTasks.includes(task.id);
 
-              const handleAction = async (action: string) => {
-                if (action === "rescan") {
-                  return await fetcher.submit(
-                    { _action: action, id: task.id },
-                    { method: "post", encType: "application/json" }
-                  );
-                } else {
-                  return await fetcher.submit(
-                    { _action: action, ids: [task.id] },
-                    { method: "post", encType: "application/json" }
-                  );
-                }
-              };
+                  const handleAction = async (action: string) => {
+                    if (action === "rescan") {
+                      return await fetcher.submit(
+                        { _action: action, id: task.id },
+                        { method: "post", encType: "application/json" }
+                      );
+                    } else {
+                      return await fetcher.submit(
+                        { _action: action, ids: [task.id] },
+                        { method: "post", encType: "application/json" }
+                      );
+                    }
+                  };
 
-              return (
-                <Card 
-                  key={task.id} 
-                  className={cn(
-                    "overflow-hidden border hover:shadow-md transition-all",
-                    isSelected && "ring-2 ring-primary"
-                  )}
-                >
-                  <div
-                    className={`h-1.5 ${
-                      statusKey === "in-progress"
-                        ? "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient-x bg-[length:400%_100%]"
-                        : statusKey === "completed"
-                        ? "bg-primary"
-                        : statusKey === "pending"
-                        ? "bg-yellow-500"
-                        : statusKey === "paused"
-                        ? "bg-yellow-500"
-                        : "bg-destructive"
-                    }`}
-                  />
-                  <div className="p-4 space-y-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2 flex-1">
+                  return (
+                    <tr
+                      key={task.id}
+                      className={cn(
+                        "border-b hover:bg-muted/30 transition-all",
+                        isSelected && "bg-primary/10"
+                      )}
+                    >
+                      <td className="p-2 text-center">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={(checked) => handleSelectTask(task.id, checked as boolean)}
                           className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
+                      </td>
+                      <td className="p-2 max-w-[140px] truncate">
                         <Link
                           to={r(SCAN_TASK_ROUTE, { variables: { taskId: task.id } })}
-                          className="text-primary font-medium truncate max-w-[120px]"
+                          className="text-primary font-medium truncate"
                           title={task.name}
                         >
                           {task.name}
                         </Link>
-                      </div>
+                      </td>
+                      <td className="p-2 text-center">{task.taskNum}</td>
+                      <td className="p-2 text-center">
+                        <Badge variant={statusInfo.variant} className={cn("px-2 py-0.5", statusInfo.className)}>
+                          <statusInfo.icon className={`w-3 h-3 mr-1 ${statusInfo.animate ? "animate-spin" : ""}`} />
+                          {statusInfo.label}
+                        </Badge>
+                      </td>
+                      <td className="p-2 text-center">{task.progress}%</td>
+                      <td className="p-2 text-center">{task.creatTime}</td>
+                      <td className="p-2 text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          {TASK_ACTIONS.map(taskAction => {
+                            const {
+                              key,
+                              title,
+                              icon: Icon,
+                              showWhen,
+                              action,
+                              route,
+                              isDestructive,
+                              needConfirm
+                            } = taskAction;
 
-                      {/* 大屏幕显示操作按钮组 */}
-                      <div className="hidden md:flex space-x-1">
-                        {TASK_ACTIONS.map(taskAction => {
-                          const {
-                            key,
-                            title,
-                            icon: Icon,
-                            showWhen,
-                            action,
-                            route,
-                            isDestructive,
-                            needConfirm
-                          } = taskAction;
+                            if (showWhen && !showWhen(statusKey)) return null;
 
-                          if (showWhen && !showWhen(statusKey)) return null;
-
-                          if (needConfirm && action) {
-                            return (
-                              <CustomTooltip key={key} description={title}>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className={cn("h-7 w-7", isDestructive && "text-destructive hover:text-destructive")}
-                                  onClick={() =>
-                                    setTaskActionDialogData({
-                                      ...taskAction,
-                                      show: true,
-                                      onConfirm: handleAction.bind(null, action)
-                                    })
-                                  }
-                                >
-                                  <Icon className="w-4 h-4" />
-                                </Button>
-                              </CustomTooltip>
-                            );
-                          }
-
-                          if (route) {
-                            return (
-                              <CustomTooltip key={key} description={title}>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
-                                  <Link to={route(task.id)}>
-                                    <Icon className="w-4 h-4" />
-                                  </Link>
-                                </Button>
-                              </CustomTooltip>
-                            );
-                          }
-
-                          return null;
-                        })}
-                      </div>
-
-                      {/* 小屏幕显示下拉菜单 */}
-                      <div className="md:hidden">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {TASK_ACTIONS.map(taskAction => {
-                              const {
-                                key,
-                                title,
-                                icon: Icon,
-                                showWhen,
-                                action,
-                                route,
-                                isDestructive,
-                                needConfirm
-                              } = taskAction;
-
-                              if (showWhen && !showWhen(statusKey)) return null;
-
-                              const itemContent = (
-                                <span className="flex items-center">
-                                  <Icon className={cn(isDestructive && "text-destructive", "w-4 h-4 mr-2")} />
-                                  <span>{title}</span>
-                                </span>
-                              );
-
-                              if (needConfirm && action) {
-                                return (
-                                  <DropdownMenuItem
-                                    key={key}
-                                    className={cn(
-                                      "flex items-center cursor-pointer",
-                                      isDestructive && "text-destructive hover:text-destructive"
-                                    )}
+                            if (needConfirm && action) {
+                              return (
+                                <CustomTooltip key={key} description={title}>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className={cn("h-6 w-6", isDestructive && "text-destructive hover:text-destructive")}
                                     onClick={() =>
                                       setTaskActionDialogData({
                                         ...taskAction,
@@ -541,76 +484,33 @@ export default function ScanTasksPage() {
                                       })
                                     }
                                   >
-                                    {itemContent}
-                                  </DropdownMenuItem>
-                                );
-                              }
+                                    <Icon className="w-4 h-4" />
+                                  </Button>
+                                </CustomTooltip>
+                              );
+                            }
 
-                              if (action) {
-                                throw new Error("Action not implemented");
-                              }
-
-                              if (route) {
-                                return (
-                                  <DropdownMenuItem
-                                    key={key}
-                                    className={cn(
-                                      "flex items-center cursor-pointer",
-                                      isDestructive && "text-destructive"
-                                    )}
-                                  >
-                                    <Link to={route(task.id)} className="block">
-                                      {itemContent}
+                            if (route) {
+                              return (
+                                <CustomTooltip key={key} description={title}>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" asChild>
+                                    <Link to={route(task.id)}>
+                                      <Icon className="w-4 h-4" />
                                     </Link>
-                                  </DropdownMenuItem>
-                                );
-                              }
+                                  </Button>
+                                </CustomTooltip>
+                              );
+                            }
 
-                              return null;
-                            })}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-sm text-muted-foreground">任务编号</div>
-                      <p className="font-medium truncate" title={task.taskNum}>
-                        {task.taskNum}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row justify-between gap-2">
-                      <div>
-                        <div className="text-sm text-muted-foreground">状态 ({task.progress}%)</div>
-                        <Badge variant={statusInfo.variant} className={statusInfo.className}>
-                          <statusInfo.icon className={`w-3 h-3 mr-1 ${statusInfo.animate ? "animate-spin" : ""}`} />
-                          <span>{statusInfo.label}</span>
-                        </Badge>
-                      </div>
-                      <div>
-                        <div className="text-sm text-muted-foreground">创建时间</div>
-                        <p className="text-sm">{task.creatTime}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2">
-                      {["域名", "IP", "Web"].map(label => (
-                        <div key={label} className="bg-muted p-2 text-center rounded-md">
-                          <div className="text-xs text-muted-foreground">{label}</div>
-                          <div className="font-medium">-</div>
+                            return null;
+                          })}
                         </div>
-                      ))}
-                    </div>
-
-                    <div>
-                      <div className="text-sm text-muted-foreground">漏洞</div>
-                      <p className="text-xs text-muted-foreground">暂无数据</p>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
 
             {/* 单个任务操作确认对话框 */}
             <AlertDialog open={taskActionDialogData.show}>
@@ -660,10 +560,10 @@ export default function ScanTasksPage() {
             </AlertDialog>
           </div>
         ) : (
-          <div className="text-center py-10 text-muted-foreground">没有找到匹配的任务。</div>
+          <div className="text-center py-10 text-muted-foreground text-sm">没有找到匹配的任务。</div>
         )}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sticky bottom-0 bg-background py-3 border-t">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sticky bottom-0 bg-background py-2 border-t">
+          <div className="text-xs text-muted-foreground">
             显示 {tasks.length > 0 ? (pageIndex - 1) * pageSize + 1 : 0}-{(pageIndex - 1) * pageSize + tasks.length} 共{" "}
             {total} 条记录
           </div>

@@ -62,6 +62,26 @@ export async function getAssetStatistics({ token, ...data }: BaseRequest & Filte
   };
 }
 
+export async function getAssetTotal({
+  token,
+  ...data
+}: BaseRequest & {
+  filter: {
+    project: string[];
+  };
+  search?: string;
+} & { index?: string }) {
+  // 默认index为"asset"，可通过参数覆盖
+  const postData = {
+    ...data,
+    index: data.index || "asset"
+  };
+  return apiClient.post<{ total: number }>("/data/total", postData, {
+    headers: { Authorization: token },
+    // enableLog: true
+  });
+}
+
 export async function getAssetStatisticsPort({ token, ...data }: BaseRequest & FilterRequest) {
   return apiClient.post<AssetStatistics>("/asset/statistics/port", data, {
     headers: { Authorization: token }
